@@ -1,0 +1,22 @@
+# options and such
+CC     = gcc
+OPTS   = -O -Wall 
+INCS   = 
+LIBS   = -R. -L. -lFS -lDisk
+
+# files we need
+SRCS   = main.c 
+OBJS   = $(SRCS:.c=.o)
+TARGET = main 
+
+all: $(TARGET)
+
+clean:
+	rm -f $(TARGET) $(OBJS)
+
+%.o: %.c
+	$(CC) $(INCS) $(OPTS) -c $< -o $@
+
+$(TARGET): $(OBJS)
+	$(PURE) $(CC) -o $(TARGET) $(OBJS) $(LIBS)
+
