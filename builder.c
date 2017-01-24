@@ -5,7 +5,7 @@
 
 int BuildMetadataBlocks()
 {
-    if (BuildMetadataBlocks() == -1)
+    if (BuildSuperBlock() == -1)
     {
         osErrno = E_GENERAL;
         return -1;

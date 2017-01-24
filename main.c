@@ -19,7 +19,7 @@ main(int argc, char *argv[])
 
     char *path = argv[1];
 
-    printf("Starting filesystem");
+    printf("Starting filesystem\n");
     FS_Boot(path);
     FS_Sync();
     return 0;
