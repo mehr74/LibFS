@@ -2,7 +2,7 @@
 CC     = gcc
 OPTS   = -O -Wall 
 INCS   = 
-LIBS   =  -L. -lFS -lDisk
+LIBS   =  -L. -lFS
 
 # files we need
 SRCS   = main.c 
