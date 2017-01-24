@@ -1,27 +1,68 @@
 #include "LibFS.h"
 #include "LibDisk.h"
 #include "builder.h"
+#include "parameters.h"
 
 // global errno value here
 int osErrno;
+// a temp variable for reading buffers
+char* read_buffer;
 
 int FS_Boot(char *path)
 {
     printf("FS_Boot %s\n", path);
 
-    // oops, check for errors
-    if (Disk_Init() == -1) 
+    // check for path and read the existing file
+    if (Disk_Load(path)==-1)
     {
-        printf("Disk_Init() failed\n");
-        osErrno = E_GENERAL;
-        return -1;
+        if (diskErrno==E_OPENING_FILE)
+        {
+            printf("This filename is not exist\n");
+        }else if(diskErrno==E_READING_FILE){
+            printf("There is some errors with reading from disk image\n");
+            return -1;
+        }
+        
+        // oops, check for errors
+        if (Disk_Init() == -1)
+        {
+            printf("Disk_Init() failed\n");
+            osErrno = E_GENERAL;
+            return -1;
+        }
+        
+        // do all of the other stuff needed...
+        if (BuildMetadataBlocks() == -1)
+        {
+            osErrno = E_GENERAL;
+        }
+        
+    }else{
+        // check for magic number of block
+        //handling errors
+        if(Disk_Read(SUPER_BLOCK_INDEX,read_buffer)==-1){
+            if (diskErrno==E_INVALID_PARAM){
+                printf("Invalid sector access or buffer\n");
+            }
+            
+            if(diskErrno==E_MEM_OP){
+                printf("Memory coping is failed\n");
+            }
+            return -1;
+        }
+        // checking number
+        if(read_buffer[0]==MAGIC_NUMBER_0 && read_buffer[1]==MAGIC_NUMBER_1 && read_buffer[2]==MAGIC_NUMBER_2 && read_buffer[3]==MAGIC_NUMBER_3){
+            printf("Misson Complete\n");
+        }else{
+            printf("The existing file is not a filesystem\n");
+        }
+        
     }
+    
+    
 
-    // do all of the other stuff needed...
-    if (BuildMetadataBlocks() == -1)
-    {
-        osErrno = E_GENERAL;
-    }
+    
+
 
     return 0;
 }
