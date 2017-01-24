@@ -1,78 +1,76 @@
 #include "LibFS.h"
 #include "LibDisk.h"
+#include "builder.h"
 
 // global errno value here
 int osErrno;
 
-int 
+    int 
 FS_Boot(char *path)
 {
     printf("FS_Boot %s\n", path);
 
     // oops, check for errors
-    if (Disk_Init() == -1) {
-	printf("Disk_Init() failed\n");
-	osErrno = E_GENERAL;
-	return -1;
+    if (Disk_Init() == -1) 
+    {
+        printf("Disk_Init() failed\n");
+        osErrno = E_GENERAL;
+        return -1;
     }
 
     // do all of the other stuff needed...
+    if (BuildSuperBlock() == -1)
+    {
+        osErrno = E_GENERAL;
+    }
 
     return 0;
 }
 
-int
-FS_Sync()
+int FS_Sync()
 {
     printf("FS_Sync\n");
     return 0;
 }
 
 
-int
-File_Create(char *file)
+int File_Create(char *file)
 {
     printf("FS_Create\n");
     return 0;
 }
 
-int
-File_Open(char *file)
+int File_Open(char *file)
 {
     printf("FS_Open\n");
     return 0;
 }
 
-int
-File_Read(int fd, void *buffer, int size)
+int File_Read(int fd, void *buffer, int size)
 {
     printf("FS_Read\n");
     return 0;
 }
 
-int
-File_Write(int fd, void *buffer, int size)
+int File_Write(int fd, void *buffer, int size)
 {
     printf("FS_Write\n");
     return 0;
 }
 
-int
-File_Seek(int fd, int offset)
+int File_Seek(int fd, int offset)
 {
     printf("FS_Seek\n");
     return 0;
 }
 
-int
-File_Close(int fd)
+int File_Close(int fd)
 {
     printf("FS_Close\n");
     return 0;
 }
 
-int
-File_Unlink(char *file)
+int File_Unlink(char *file)
 {
     printf("FS_Unlink\n");
     return 0;
@@ -80,29 +78,25 @@ File_Unlink(char *file)
 
 
 // directory ops
-int
-Dir_Create(char *path)
+int Dir_Create(char *path)
 {
     printf("Dir_Create %s\n", path);
     return 0;
 }
 
-int
-Dir_Size(char *path)
+int Dir_Size(char *path)
 {
     printf("Dir_Size\n");
     return 0;
 }
 
-int
-Dir_Read(char *path, void *buffer, int size)
+int Dir_Read(char *path, void *buffer, int size)
 {
     printf("Dir_Read\n");
     return 0;
 }
 
-int
-Dir_Unlink(char *path)
+int Dir_Unlink(char *path)
 {
     printf("Dir_Unlink\n");
     return 0;
