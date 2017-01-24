@@ -19,6 +19,7 @@
 
 // disk errors
 typedef enum {
+  E_NO_ERROR,
   E_MEM_OP,
   E_INVALID_PARAM,
   E_OPENING_FILE,

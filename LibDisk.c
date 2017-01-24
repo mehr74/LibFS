@@ -22,11 +22,13 @@ Disk_Error_t diskErrno;
 int Disk_Init()
 {
     // create the disk image and fill every sector with zeroes
+    diskErrno=E_NO_ERROR;
     disk = (Sector *) calloc(NUM_SECTORS, sizeof(Sector));
     if(disk == NULL) {
 	diskErrno = E_MEM_OP;
 	return -1;
     }
+    
     return 0;
 }
 
@@ -112,6 +114,7 @@ int Disk_Read(int sector, char* buffer) {
     // copy the memory for the user
     if((memcpy((void*)buffer, (void*)(disk + sector), sizeof(Sector))) == NULL) {
 	diskErrno = E_MEM_OP;
+
 	return -1;
     }
     
@@ -128,12 +131,14 @@ int Disk_Write(int sector, char* buffer)
     // quick error checks
     if((sector < 0) || (sector >= NUM_SECTORS) || (buffer == NULL)) {
 	diskErrno = E_INVALID_PARAM;
+
 	return -1;
     }
     
     // copy the memory for the user
     if((memcpy((void*)(disk + sector), (void*)buffer, sizeof(Sector))) == NULL) {
 	diskErrno = E_MEM_OP;
+
 	return -1;
     }
     return 0;
