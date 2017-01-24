@@ -12,11 +12,14 @@ usage(char *prog)
 int
 main(int argc, char *argv[])
 {
-    if (argc != 2) {
-	usage(argv[0]);
+    if (argc != 2) 
+    {
+	    usage(argv[0]);
     }
+
     char *path = argv[1];
 
+    printf("Starting filesystem");
     FS_Boot(path);
     FS_Sync();
     return 0;

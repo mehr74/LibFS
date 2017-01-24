@@ -1,10 +1,10 @@
-#ifndef PARAMETERS_H_INCLUDED
-#define PARAMETERS_H_INCLUDED
+#ifndef PARAMETERS_H
+#define PARAMETERS_H
 
-extern int MAGIC_NUMBER_0;    //This one and three below are some magic number that stored in super block to distinguish it from other disks
-extern int MAGIC_NUMBER_1;
-extern int MAGIC_NUMBER_2;
-extern int MAGIC_NUMBER_3;
+extern char MAGIC_NUMBER_0;    //This one and three below are some magic number that stored in super block to distinguish it from other disks
+extern char MAGIC_NUMBER_1;
+extern char MAGIC_NUMBER_2;
+extern char MAGIC_NUMBER_3;
 
 extern int SUPER_BLOCK_INDEX;   //This shows the block which Super block is stored in it
 extern int SUPER_BLOCK_NUM;     //Number of super blocks!!!
@@ -39,4 +39,4 @@ extern int DATA_BLOCK_PER_CHAR_NUM;
 
 extern int NULL_TERM;   //Null Terminator
 
-#endif // PARAMETERS_H_INCLUDED
+#endif // PARAMETERS_H

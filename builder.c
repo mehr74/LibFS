@@ -1,6 +1,7 @@
 #include "builder.h"
 #include "LibFS.h"
 #include "parameters.h"
+#include "LibDisk.h"
 
 int BuildSuperBlock()
 {
@@ -41,18 +42,17 @@ int BuildSuperBlock()
 int BuildBitmapBlock(char* bitmapBlock)
 {
 
-
+    return 0;
 }
 
 int BuildDataBlock(char* dataBlock)
 {
 
-
+    return 0;
 }
 
 int BuildInode(char* inode)
 {
 
-
-
+    return 0;
 }

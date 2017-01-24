@@ -30,6 +30,7 @@ FS_Boot(char *path)
 int FS_Sync()
 {
     printf("FS_Sync\n");
+    Disk_Save("disk.txt");
     return 0;
 }
 
