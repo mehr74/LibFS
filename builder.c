@@ -8,7 +8,16 @@ int BuildMetadataBlocks()
     if (BuildMetadataBlocks() == -1)
     {
         osErrno = E_GENERAL;
+        return -1;
     }
+
+    if (BuildBitmapBlocks() == -1)
+    {
+        osErrno = E_GENERAL;
+        return -1;
+    }
+
+    return 0;
 }
 
 int BuildSuperBlock()
@@ -47,8 +56,13 @@ int BuildSuperBlock()
     return 0;
 }
 
-int BuildBitmapBlock(char* bitmapBlock)
+int BuildBitmapBlocks()
 {
+    // allocated memory size of sector
+    char* inodeBitmap;
+    inodeBitmap = calloc(sizeof(char), SECTOR_SIZE);
+
+    free(inodeBitmap);
 
     return 0;
 }
