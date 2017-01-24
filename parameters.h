@@ -30,6 +30,7 @@ extern int INODE_BLOCK_NUM;         //Number of inode blocks!!!
 extern int INODE_BYTEMAP_LENGTH;    //It is 250
 extern int INODE_FIRST_BLOCK_INDEX; //This shows the index of first block which inodes are stored in it
 extern int INODE_PER_BLOCK_NUM;     //Number of inode per block!!!
+extern int INODE_SIZE;              //Size of each inode in a block
 
 extern int DATA_BITMAP_BLOCK_NUM;
 extern int DATA_BLOCK_NUM;              //Number of data blocks!!!

@@ -1,4 +1,5 @@
 #include "parameters.h"
+#include "LibDisk.h"
 
 char MAGIC_NUMBER_0 = 13;    //This one and three below are some magic number that stored in super block to distinguish it from other disks
 char MAGIC_NUMBER_1 = 13;
@@ -29,6 +30,7 @@ int INODE_BLOCK_NUM = 250;          //Number of inode blocks!!!
 int INODE_BYTEMAP_LENGTH = 250;     //It is 250
 int INODE_FIRST_BLOCK_INDEX = 5;    //This shows the index of first block which inodes are stored in it
 int INODE_PER_BLOCK_NUM = 4;        //Number of inode per block!!!
+int INODE_SIZE = 128;               //Size of each inode in a block
 
 int DATA_BITMAP_BLOCK_NUM = 3;
 int DATA_BLOCK_NUM =9745;               //Number of data blocks!!!

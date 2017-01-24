@@ -5,8 +5,7 @@
 // global errno value here
 int osErrno;
 
-    int 
-FS_Boot(char *path)
+int FS_Boot(char *path)
 {
     printf("FS_Boot %s\n", path);
 
@@ -19,7 +18,7 @@ FS_Boot(char *path)
     }
 
     // do all of the other stuff needed...
-    if (BuildSuperBlock() == -1)
+    if (BuildMetadataBlocks() == -1)
     {
         osErrno = E_GENERAL;
     }
