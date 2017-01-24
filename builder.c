@@ -5,6 +5,43 @@
 #include <stdio.h>
 #include <string.h>
 
+int CheckFileSystemSuperBlock()
+{
+    // allocate memory size of sector
+    char *readBuffer;
+    readBuffer = calloc(sizeof(char), SECTOR_SIZE);
+
+    // check whether memory is allocated or not ...
+    if(readBuffer == NULL)
+    {
+        // Can't allocated memory for superBlock ...
+        printf("Faild to allocate memory for readBuffer\n");
+        return -1;
+    }
+
+    // check wether disk could read the sector ...
+    if(Disk_Read(SUPER_BLOCK_INDEX, readBuffer)==-1)
+    {
+        printf("Disk faild to read superblock");
+        return -1;
+    }
+
+
+    // Check magic number
+    if( readBuffer[0]==MAGIC_NUMBER_0 &&
+        readBuffer[1]==MAGIC_NUMBER_1 &&
+        readBuffer[2]==MAGIC_NUMBER_2 &&
+        readBuffer[3]==MAGIC_NUMBER_3)
+    {
+        printf("File opend successfully.");
+    }
+    else
+    {
+        printf("The existing file has an unsupported filesystem\n");
+    }
+    return 0;
+}
+
 int BuildMetadataBlocks()
 {
     if (BuildSuperBlock() == -1)
@@ -85,8 +122,10 @@ int BuildBitmapBlocks()
     }
     free(inodeBitmapBlock);
 
+
     // Building data bitmap blocks
 
+    // allocate memory size of sector
     char* dataBitmapBlock;
     dataBitmapBlock = calloc(sizeof(char), SECTOR_SIZE);
 
@@ -103,6 +142,7 @@ int BuildBitmapBlocks()
             // Disk couldn't write data bitmap block
             printf("Disk Failed to write dataBitmapBlock\n");
             free(dataBitmapBlock);
+            return -1;
         }
     }
     free(dataBitmapBlock);

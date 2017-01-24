@@ -1,6 +1,7 @@
 #ifndef BUILDER_H
 #define BUILDER_H
 
+int CheckFileSystemSuperBlock();
 int BuildMetadataBlocks();
 int BuildSuperBlock();
 int BuildBitmapBlocks();

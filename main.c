@@ -21,7 +21,7 @@ main(int argc, char *argv[])
 
     printf("Starting filesystem\n");
     FS_Boot(path);
-    FS_Sync();
+   // FS_Sync();
     return 0;
 }
 
