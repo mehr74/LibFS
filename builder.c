@@ -2,6 +2,8 @@
 #include "LibFS.h"
 #include "parameters.h"
 #include "LibDisk.h"
+#include <stdio.h>
+#include <string.h>
 
 int BuildMetadataBlocks()
 {
@@ -58,11 +60,52 @@ int BuildSuperBlock()
 
 int BuildBitmapBlocks()
 {
-    // allocated memory size of sector
-    char* inodeBitmap;
-    inodeBitmap = calloc(sizeof(char), SECTOR_SIZE);
+    // Building inode bitmap blocks
 
-    free(inodeBitmap);
+    // allocated memory size of sector
+    int i;
+    char* inodeBitmapBlock;
+    inodeBitmapBlock = calloc(sizeof(char), SECTOR_SIZE);
+
+    for(i = 0; i < INODE_BITMAP_BLOCK_NUM; i++)
+    {
+        // set all inode blocks to be available
+        memset(inodeBitmapBlock, AVAILIBLE, SECTOR_SIZE);
+
+        Disk_Write(INODE_FIRST_BLOCK_INDEX + i, inodeBitmapBlock);
+
+        // Check whether disk wrote inodeBitmapBlock...
+        if(diskErrno == E_MEM_OP)
+        {
+            // Disk couldn't write inode bitmap block
+            printf("Disk Failed to write inodeBitmapBlock\n");
+            free(inodeBitmapBlock);
+            return -1;
+        }
+    }
+    free(inodeBitmapBlock);
+
+    // Building data bitmap blocks
+
+    char* dataBitmapBlock;
+    dataBitmapBlock = calloc(sizeof(char), SECTOR_SIZE);
+
+    for(i = 0; i < DATA_BITMAP_BLOCK_NUM; i++)
+    {
+        // set add data blocks to be available
+        memset(dataBitmapBlock, AVAILIBLE, SECTOR_SIZE);
+
+        Disk_Write(DATA_FIRST_BLOCK_INDEX + i, dataBitmapBlock);
+
+        // Check whether disk wrote data bitmap block...
+        if(diskErrno == E_MEM_OP)
+        {
+            // Disk couldn't write data bitmap block
+            printf("Disk Failed to write dataBitmapBlock\n");
+            free(dataBitmapBlock);
+        }
+    }
+    free(dataBitmapBlock);
 
     return 0;
 }
