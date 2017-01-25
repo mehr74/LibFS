@@ -10,7 +10,13 @@ int BuildRootDirectory()
     char *rootInode;
     rootInode= calloc(sizeof(char), INODE_SIZE);
 
-    printf("%d", FindNextAvailableInode());
+    int i = FindNextAvailableInodeBlock();
+    ChangeInodeBitmapStatus(i, OCCUPIED);
+    i = FindNextAvailableInodeBlock();
+    printf("%d", i);
+    ChangeInodeBitmapStatus(0, AVAILIBLE);
+    printf("%d", FindNextAvailableInodeBlock());
+
 
     // check whether memory is allocated or not ...
     if(rootInode == NULL)

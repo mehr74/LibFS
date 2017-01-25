@@ -55,7 +55,55 @@ int FindNextAvailableInodeBlock()
 
     // there is no available inode
     return -2;
-    
+}
+
+int FindNextAvailableDataBlock()
+{
+    // define char* to read inode bitmap sector
+    char* dataBitmapBuffer= calloc(sizeof(char),SECTOR_SIZE);
+
+    // check whether memory is allocated or not ...
+    if(dataBitmapBuffer == NULL)
+    {
+        // Can't allocated memory for superBlock ...
+        printf("Faild to allocate memory for readBuffer\n");
+        return -1;
+    }
+
+    //define variables
+    int k,i,j;
+    char bytemapTemp[8];
+
+    //check next free inode
+    //first handle errors
+    for(k = 0; k < DATA_BITMAP_BLOCK_NUM; k++)
+    {
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + k, dataBitmapBuffer) == -1)
+        {
+            printf("Disk failed to read inode bitmap block\n");
+            free(dataBitmapBuffer);
+            return -1;
+        }
+
+        // checking available datablock
+        for( i=0; i< min((DATA_BLOCK_NUM/8)-(k*SECTOR_SIZE), SECTOR_SIZE) ; i++)
+        {
+            ConvertBitmapToBytemap(&dataBitmapBuffer[i],bytemapTemp);
+            for(j=0;j<8;j++)
+            {
+                if(!bytemapTemp[j])
+                {
+                    free(dataBitmapBuffer);
+                    return i*8+j;
+                }
+            }
+        }
+    }
+
+    free(dataBitmapBuffer);
+
+    // there is no available datablock
+    return -2;
 }
 
 int ChangeInodeBitmapStatus(int inodeIndex, int status)

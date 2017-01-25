@@ -39,7 +39,7 @@ extern int INODE_SIZE;                      //Size of each inode in a block
 
 extern int DATA_BITMAP_BLOCK_NUM;
 extern int DATA_BLOCK_NUM;              //Number of data blocks!!!
-extern int DATA_BLOCK_BYTEMAP_LENGTH;   //Actually it is 1218.125 means 9745/8 because it is Bytemap
+extern int DATA_BITMAP_BLOCK_LENGTH;   //Actually it is 1218.125 means 9745/8 because it is Bytemap
 extern int DATA_FIRST_BLOCK_INDEX;      //This shows the index of first block which datas are stored in it
 extern int DATA_BLOCK_PER_CHAR_NUM;
 

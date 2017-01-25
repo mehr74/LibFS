@@ -134,7 +134,7 @@ int Disk_Write(int sector, char* buffer)
 
 	return -1;
     }
-    
+
     // copy the memory for the user
     if((memcpy((void*)(disk + sector), (void*)buffer, sizeof(Sector))) == NULL) {
 	diskErrno = E_MEM_OP;

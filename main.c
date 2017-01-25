@@ -2,15 +2,13 @@
 
 #include "LibFS.h"
 
-void 
-usage(char *prog)
+void usage(char *prog)
 {
     fprintf(stderr, "usage: %s <disk image file>\n", prog);
     exit(1);
 }
 
-int
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
     if (argc != 2) 
     {
@@ -21,7 +19,7 @@ main(int argc, char *argv[])
 
     printf("Starting filesystem\n");
     FS_Boot(path);
-   // FS_Sync();
+    FS_Sync();
     return 0;
 }
 

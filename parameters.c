@@ -35,7 +35,7 @@ int INODE_SIZE = 128;                   //Size of each inode in a block
 
 int DATA_BITMAP_BLOCK_NUM = 3;
 int DATA_BLOCK_NUM =9745;               //Number of data blocks!!!
-int DATA_BLOCK_BYTEMAP_LENGTH = 1219;   //Actually it is 1218.125 means 9745/8 because it is Bytemap
+int DATA_BITMAP_BLOCK_LENGTH = 1219;   //Actually it is 1218.125 means 9745/8 because it is Bytemap
 int DATA_FIRST_BLOCK_INDEX = 255;       //This shows the index of first block which datas are stored in it
 int DATA_BLOCK_PER_CHAR_NUM = 8;
 
