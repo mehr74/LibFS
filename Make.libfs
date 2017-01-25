@@ -5,7 +5,7 @@ INCS   =
 LIBS   =
 
 # files we need
-SRCS   = LibFS.c builder.c parameters.c LibDisk.c
+SRCS   = LibFS.c builder.c parameters.c LibDisk.c inode.c directory.c
 OBJS   = $(SRCS:.c=.o)
 TARGET = libFS.so
 
