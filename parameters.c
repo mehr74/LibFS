@@ -16,8 +16,8 @@ int SECTOR_PER_FILE_MAX = 30;   //The maximum number of sectors that could be in
 int AVAILIBLE = 0;      //This and OCCUPIED are show the readability of bitmaps
 int OCCUPIED = 1;
 
-int FILE_ID = 0;        //File IDentification number!!!
-int DIRECTORY_ID = 1;   //Directory ID!!!
+char FILE_ID = 0x80;        //File IDentification number!!!
+char DIRECTORY_ID = 0x00;   //Directory ID!!!
 
 int PATH_LENGTH_MAX = 16;       //Maximum length of path!!! It is 15 but because of last character that is null term it would be 16.
 int DIRECTORY_LENGTH = 20;      //The length of a path + The size of an integer in Bytes

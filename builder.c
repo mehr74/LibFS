@@ -162,8 +162,20 @@ int BuildDataBlock(char* dataBlock)
     return 0;
 }
 
-int BuildInode(char* inode)
+int BuildInode(char* inode, char type)
 {
+    // allocate memory size of sector
+    inode = calloc(sizeof(char), SECTOR_SIZE);
+
+    // check whether memory is allocated or not ...
+    if(inode == NULL)
+    {
+        // Can't allocated memory for inode ...
+        printf("Faild to allocate memory for inode\n");
+        return -1;
+    }
+
+    inode[0] = type;
 
     return 0;
 }

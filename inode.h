@@ -8,9 +8,15 @@ int FindNextAvailableInodeBlock();
 int FindNextAvailableDataBlock();
 
 int ChangeInodeBitmapStatus(int inodeIndex, int status);
-int ChangeDataBitmapStatus(int inodeIndex, int status);
+int ChangeDataBitmapStatus(int dataIndex, int status);
+
+//Convert Bitmap to Bytemap and vice versa
 int ConvertBitmapToBytemap(char* bitmap, char* bytemap);
 int ConvertBytemapToBitmap(char* bitmap, char* bytemap);
+
+// Place an inode in correct block
+// inodeData must be 128 Byte
+int WriteInodeInSector ( int inodeNumber , char* inodeData);
 
 
 #endif // INODE_H

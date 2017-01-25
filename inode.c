@@ -116,7 +116,7 @@ int ChangeInodeBitmapStatus(int inodeIndex, int status)
     if(inodeBitmapBuffer == NULL)
     {
         // Can't allocated memory for superBlock ...
-        printf("Faild to allocate memory for readBuffer\n");
+        printf("Faild to allocate memory for inodeBitmapBuffer\n");
         return -1;
     }
 
@@ -134,9 +134,9 @@ int ChangeInodeBitmapStatus(int inodeIndex, int status)
     ConvertBytemapToBitmap(&inodeBitmapBuffer[(inodeIndex%SECTOR_SIZE)/8], bytemapTemp);
 
     // Write changes to disk ...
-    if( Disk_Write(INODE_FIRST_BITMAP_BLOCK_INDEX + (inodeIndex/SECTOR_SIZE), inodeBitmapBuffer) == -1)
+    if( Disk_Write(INODE_FIRST_BITMAP_BLOCK_INDEX + (inodeIndex/(SECTOR_SIZE*8)), inodeBitmapBuffer) == -1)
     {
-        printf("Disk failed to read inode bitmap block\n");
+        printf("Disk failed to write inode bitmap block\n");
         free(inodeBitmapBuffer);
         return -1;
     }
@@ -171,3 +171,50 @@ int ConvertBytemapToBitmap(char* bitmap, char* bytemap)
     *bitmap = (bytemap[7]) ? (*bitmap|BIT_7) : (*bitmap);
     return 0;
 }
+
+// Place an inode in correct block
+// inodeData must be 128 Byte
+int WriteInodeInSector ( int inodeNumber , char* inodeData){
+    
+    // define char* to read appropriate sector
+    char* sectorBuffer= calloc(sizeof(char),SECTOR_SIZE);
+    
+    // check whether memory is allocated or not ...
+    if(sectorBuffer == NULL)
+    {
+        // Can't allocated memory for superBlock ...
+        printf("Faild to allocate memory for sectorBuffer\n");
+        return -1;
+    }
+    
+    // define variables
+    int sectorNumber=inodeNumber/INODE_PER_BLOCK_NUM;
+    int inodeOfSectorIndex=inodeNumber%INODE_PER_BLOCK_NUM;
+    
+    // Read the sector and check the errors
+    if( Disk_Read(INODE_FIRST_BLOCK_INDEX + sectorNumber, sectorBuffer) == -1)
+    {
+        printf("Disk failed to read block of appropriate inode\n");
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    // Change the data of inoded
+    memcpy((void*)inodeData,(void*)sectorBuffer+INODE_SIZE*inodeOfSectorIndex,INODE_SIZE);
+    
+    // Write changes to disk ...
+    if( Disk_Write(INODE_FIRST_BLOCK_INDEX + sectorNumber, sectorBuffer) == -1)
+    {
+        printf("Disk failed to write changed block\n");
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    free(sectorBuffer);
+    return 0;
+}
+
+
+
+
+

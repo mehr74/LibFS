@@ -3,29 +3,21 @@
 #include "LibFS.h"
 #include "inode.h"
 #include "directory.h"
+#include "builder.h"
 
 int BuildRootDirectory()
 {
     // allocate memory size of inode
     char *rootInode;
-    rootInode= calloc(sizeof(char), INODE_SIZE);
+    rootInode = BuildInode(DIRECTORY_ID);
 
+    // get one availabe inode block
+    // since all inode are no availabe i must be 0
     int i = FindNextAvailableInodeBlock();
     ChangeInodeBitmapStatus(i, OCCUPIED);
-    i = FindNextAvailableInodeBlock();
-    printf("%d", i);
-    ChangeInodeBitmapStatus(0, AVAILIBLE);
-    printf("%d", FindNextAvailableInodeBlock());
 
-
-    // check whether memory is allocated or not ...
-    if(rootInode == NULL)
-    {
-        // Can't allocated memory for rootInode
-        printf("Failed to allocate memory for root-inode\n");
-        free(rootInode);
-        return -1;
-    }
+    // Write root directory data in disk
+    WriteInodeInSector(i, rootInode);
 
     free(rootInode);
     return 0;
