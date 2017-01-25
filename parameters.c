@@ -26,11 +26,12 @@ int OPEN_FILE_NUM_MAX = 256;    //Maximum number of open files. It is used for d
 int FILE_NUM_MAX = 1000;        //Maximum number of files that a file system can hold
 
 int INODE_BITMAP_BLOCK_NUM = 1;
-int INODE_BLOCK_NUM = 250;          //Number of inode blocks!!!
-int INODE_BYTEMAP_LENGTH = 250;     //It is 250
-int INODE_FIRST_BLOCK_INDEX = 5;    //This shows the index of first block which inodes are stored in it
-int INODE_PER_BLOCK_NUM = 4;        //Number of inode per block!!!
-int INODE_SIZE = 128;               //Size of each inode in a block
+int INODE_FIRST_BITMAP_BLOCK_INDEX=1;   //Index of bitmap
+int INODE_BLOCK_NUM = 250;              //Number of inode blocks!!!
+int INODE_BYTEMAP_LENGTH = 250;         //It is 250
+int INODE_FIRST_BLOCK_INDEX = 5;        //This shows the index of first block which inodes are stored in it
+int INODE_PER_BLOCK_NUM = 4;            //Number of inode per block!!!
+int INODE_SIZE = 128;                   //Size of each inode in a block
 
 int DATA_BITMAP_BLOCK_NUM = 3;
 int DATA_BLOCK_NUM =9745;               //Number of data blocks!!!
@@ -39,3 +40,12 @@ int DATA_FIRST_BLOCK_INDEX = 255;       //This shows the index of first block wh
 int DATA_BLOCK_PER_CHAR_NUM = 8;
 
 int NULL_TERM = 0;      //Null Terminator
+
+char BIT_0=0x01;       //is 0x01
+char BIT_1=0x02;       //is 0x02
+char BIT_2=0x04;       //is 0x04
+char BIT_3=0x08;       //is 0x08
+char BIT_4=0x10;       //is 0x10
+char BIT_5=0x20;       //is 0x20
+char BIT_6=0x40;       //is 0x40
+char BIT_7=0x80;       //is 0x80
