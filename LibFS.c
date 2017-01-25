@@ -31,7 +31,6 @@ int FS_Boot(char *path)
         else if(diskErrno==E_READING_FILE)
         {
             printf("There is some errors with reading from disk image\n");
-            return -1;
         }
 
         // do all of the other stuff needed...
@@ -44,9 +43,12 @@ int FS_Boot(char *path)
     {
         // check for magic number of block
         // handling errors
-        CheckFileSystemSuperBlock();
+        if (CheckFileSystemSuperBlock() == -1)
+        {
+            osErrno = E_GENERAL;
+            return -1;
+        }
     }
-
     return 0;
 }
 

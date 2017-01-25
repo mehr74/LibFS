@@ -2,7 +2,6 @@
 #include "LibFS.h"
 #include "parameters.h"
 #include "LibDisk.h"
-#include "directory.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -52,12 +51,6 @@ int BuildMetadataBlocks()
     }
 
     if (BuildBitmapBlocks() == -1)
-    {
-        osErrno = E_GENERAL;
-        return -1;
-    }
-
-    if (BuildRootDirectory() == -1)
     {
         osErrno = E_GENERAL;
         return -1;
