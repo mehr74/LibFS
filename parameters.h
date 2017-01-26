@@ -24,6 +24,7 @@ extern char FILE_ID;         //File IDentification number!!!
 extern char DIRECTORY_ID;    //Directory ID!!!
 
 extern int PATH_LENGTH_MAX;         //Maximum length of path!!! It is 15 but because of last character that is null term it would be 16.
+extern int FULL_PATH_LENGTH_MAX;    //Maximum of full path name
 extern int DIRECTORY_LENGTH;        //The length of a path + The size of an integer in Bytes
 extern int FILENAME_LENGTH_MAX;     //Maximum length of filename
 extern int OPEN_FILE_NUM_MAX;       //Maximum number of open files. It is used for determine the length of the fileTable

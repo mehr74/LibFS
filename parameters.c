@@ -20,6 +20,7 @@ char FILE_ID = 0x80;        //File IDentification number!!!
 char DIRECTORY_ID = 0x00;   //Directory ID!!!
 
 int PATH_LENGTH_MAX = 16;       //Maximum length of path!!! It is 15 but because of last character that is null term it would be 16.
+int FULL_PATH_LENGTH_MAX=256;   //Maximum of full path name
 int DIRECTORY_LENGTH = 20;      //The length of a path + The size of an integer in Bytes
 int FILENAME_LENGTH_MAX = 16;   //Maximum length of filename
 int OPEN_FILE_NUM_MAX = 256;    //Maximum number of open files. It is used for determine the length of the fileTable
