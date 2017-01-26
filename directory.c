@@ -21,9 +21,8 @@ int BuildRootDirectory()
     int j;
     Disk_Save("disk1.txt");
     ChangeInodeBitmapStatus(i, OCCUPIED);
-    Disk_Save("disk2.txt");
 
-    for(i = 0; i < 513; i++)
+    for(i = 0; i < 10000; i++)
     {
         j = FindNextAvailableDataBlock();
         ChangeDataBitmapStatus(j, OCCUPIED);

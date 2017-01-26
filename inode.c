@@ -46,7 +46,7 @@ int FindNextAvailableInodeBlock()
                 if(!bytemapTemp[j])
                 {
                     free(inodeBitmapBuffer);
-                    return k*256*8+i*8+j;
+                    return k*512*8+i*8+j;
                 }
             }
         }
@@ -79,7 +79,6 @@ int FindNextAvailableDataBlock()
     //first handle errors
     for(k = 0; k < DATA_BITMAP_BLOCK_NUM; k++)
     {
-        printf("k -> %d\n", k);
         if( Disk_Read(DATA_FIRST_BITMAP_BLOCK_INDEX + k, dataBitmapBuffer) == -1)
         {
             printf("Disk failed to read inode bitmap block\n");
@@ -88,7 +87,7 @@ int FindNextAvailableDataBlock()
         }
 
         // checking available datablock
-        for( i=0; i< min((DATA_BLOCK_NUM/8)-(k*SECTOR_SIZE), SECTOR_SIZE) ; i++)
+        for( i=0; i < min((DATA_BLOCK_NUM)-(k*SECTOR_SIZE*8), SECTOR_SIZE*8)/8 ; i++)
         {
             ConvertBitmapToBytemap(&dataBitmapBuffer[i],bytemapTemp);
             for(j=0;j<8;j++)
@@ -96,7 +95,7 @@ int FindNextAvailableDataBlock()
                 if(!bytemapTemp[j])
                 {
                     free(dataBitmapBuffer);
-                    return k*256*8+i*8+j;
+                    return k*512*8+i*8+j;
                 }
             }
         }
@@ -110,6 +109,12 @@ int FindNextAvailableDataBlock()
 
 int ChangeInodeBitmapStatus(int inodeIndex, int status)
 {
+
+    // check if index is in the range
+    if(inodeIndex < 0 || inodeIndex > FILE_NUM_MAX)
+        return -1;
+
+
     // define char* to read inode bitmap sector
     char* inodeBitmapBuffer= calloc(sizeof(char),SECTOR_SIZE);
     char bytemapTemp[8];
@@ -131,9 +136,9 @@ int ChangeInodeBitmapStatus(int inodeIndex, int status)
     }
 
     // update bitmap block - set inode #inodeIndex to status state...
-    ConvertBitmapToBytemap(&inodeBitmapBuffer[(inodeIndex%SECTOR_SIZE)/8], bytemapTemp);
-    bytemapTemp[(inodeIndex%SECTOR_SIZE) % 8] = status;
-    ConvertBytemapToBitmap(&inodeBitmapBuffer[(inodeIndex%SECTOR_SIZE)/8], bytemapTemp);
+    ConvertBitmapToBytemap(&inodeBitmapBuffer[(inodeIndex%(SECTOR_SIZE*8))/8], bytemapTemp);
+    bytemapTemp[(inodeIndex%(SECTOR_SIZE*8)) % 8] = status;
+    ConvertBytemapToBitmap(&inodeBitmapBuffer[(inodeIndex%(SECTOR_SIZE*8))/8], bytemapTemp);
 
     // Write changes to disk ...
     if( Disk_Write(INODE_FIRST_BITMAP_BLOCK_INDEX + (inodeIndex/(SECTOR_SIZE*8)), inodeBitmapBuffer) == -1)
@@ -149,6 +154,11 @@ int ChangeInodeBitmapStatus(int inodeIndex, int status)
 
 int ChangeDataBitmapStatus(int dataIndex, int status)
 {
+
+    // check if index is in the range
+    if(dataIndex < 0 || dataIndex > DATA_BLOCK_NUM)
+        return -1;
+
     // define char* to read inode bitmap sector
     char* dataBitmapBuffer= calloc(sizeof(char),SECTOR_SIZE);
     char bytemapTemp[8];
@@ -170,9 +180,9 @@ int ChangeDataBitmapStatus(int dataIndex, int status)
     }
 
     // update bitmap block - set inode #inodeIndex to status state...
-    ConvertBitmapToBytemap(&dataBitmapBuffer[(dataIndex%SECTOR_SIZE)/8], bytemapTemp);
-    bytemapTemp[(dataIndex%SECTOR_SIZE) % 8] = status;
-    ConvertBytemapToBitmap(&dataBitmapBuffer[(dataIndex%SECTOR_SIZE)/8], bytemapTemp);
+    ConvertBitmapToBytemap(&dataBitmapBuffer[(dataIndex%(SECTOR_SIZE*8))/8], bytemapTemp);
+    bytemapTemp[(dataIndex%(SECTOR_SIZE*8)) % 8] = status;
+    ConvertBytemapToBitmap(&dataBitmapBuffer[(dataIndex%(SECTOR_SIZE*8))/8], bytemapTemp);
 
     // Write changes to disk ...
     if( Disk_Write(DATA_FIRST_BITMAP_BLOCK_INDEX + (dataIndex/(SECTOR_SIZE*8)), dataBitmapBuffer) == -1)
