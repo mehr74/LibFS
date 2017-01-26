@@ -164,9 +164,6 @@ int BuildDataBlock(char* dataBlock)
 
 int BuildInode(char* inode, char type)
 {
-    // allocate memory size of sector
-    inode = calloc(sizeof(char), SECTOR_SIZE);
-
     // check whether memory is allocated or not ...
     if(inode == NULL)
     {

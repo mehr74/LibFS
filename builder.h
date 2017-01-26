@@ -6,6 +6,6 @@ int BuildMetadataBlocks();
 int BuildSuperBlock();
 int BuildBitmapBlocks();
 int BuildDataBlock(char* dataBlock);
-int BuildInode(char* inode);
+int BuildInode(char* inode, char type);
 
 #endif  // BUILDER_H

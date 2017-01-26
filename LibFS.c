@@ -34,8 +34,7 @@ int FS_Boot(char *path)
         }
 
         // do all of the other stuff needed...
-        if (BuildMetadataBlocks() == -1)
-        {
+        if (BuildMetadataBlocks() == -1) {
             osErrno = E_GENERAL;
         }
     }
@@ -106,6 +105,7 @@ int File_Unlink(char *file)
 // directory ops
 int Dir_Create(char *path)
 {
+
     printf("Dir_Create %s\n", path);
     return 0;
 }
