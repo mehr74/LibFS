@@ -31,6 +31,7 @@ extern int OPEN_FILE_NUM_MAX;       //Maximum number of open files. It is used f
 extern int FILE_NUM_MAX;            //Maximum number of files that a file system can hold
 
 extern int INODE_BITMAP_BLOCK_NUM;
+extern int META_DATA_PER_INODE_BYTE_NUM;
 extern int INODE_FIRST_BITMAP_BLOCK_INDEX;  //Index of bitmap
 extern int INODE_BLOCK_NUM;                 //Number of inode blocks!!!
 extern int INODE_BYTEMAP_LENGTH;            //It is 250

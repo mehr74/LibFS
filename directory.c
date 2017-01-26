@@ -78,3 +78,55 @@ int BreakPathName( char* pathName , char* arrayOfBreakPathName[])
     return index;
     
 }
+
+
+//retrun -1 if error
+//return -2 if inode is not directory
+int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
+{
+    char* sectorOfInodeBuffer=calloc(sizeof(char),SECTOR_SIZE)
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char
+    
+    DirectoryEntry directoryEntryTemp;
+    int
+    int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
+    int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
+    int i,j;
+    
+    // Read the inode
+    if( Disk_Read(INODE_FIRST_BLOCK_INDEX + sectorOfInodeNumber, sectorOfInodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(sectorOfInodeBuffer);
+        free(inodeBuffer);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    //Copy appropriate inode from sector into inodeBuffer
+    memcpy((void*)sectorOfInodeBuffer+INODE_SIZE*inodeIndexInSector,(void*)inodeBuffer,INODE_SIZE);
+    
+    // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
+    if (inodeBuffer[0] & FILE_ID)
+    {
+        printf("Inode is not directory, it is file.\n");
+        free(sectorOfInodeBuffer);
+        free(inodeBuffer);
+        free(sectorBuffer);
+        return -2;
+    }
+    
+    for (i=0;i<SECTOR_PER_FILE_MAX;i++)
+    {
+        
+    }
+
+    
+
+
+
+
+
+}
