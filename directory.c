@@ -4,6 +4,7 @@
 #include "inode.h"
 #include "directory.h"
 #include "builder.h"
+#include <string.h>
 
 int BuildRootDirectory()
 {
@@ -21,4 +22,44 @@ int BuildRootDirectory()
 
     free(rootInode);
     return 0;
+}
+
+
+int BreakPathName( char* pathName , char* arrayOfBreakPathName[])
+{
+    // check path length
+    if(strlen(pathName)>FULL_PATH_LENGTH_MAX)
+    {
+        printf("Full Path name is more than legal character\n");
+        return -1;
+    }
+    
+    // define variable
+    int index=0;
+    int i=0;
+    const char* search="/";
+    char* token;
+    
+    char strTemp[strlen(pathName)];
+    strcpy(strTemp,pathName);
+    
+    // divide the strTemp(pathName) into directories
+    token=strtok(strTemp,search);
+    while(token!=NULL){
+        arrayOfBreakPathName[index]=token;
+        token = strtok(NULL, search);
+    }
+    
+    // check value of index. it must be at most 16
+    for (i=0;i<index;i++)
+    {
+        if(strlen(arrayOfBreakPathName[i])>PATH_LENGTH_MAX)
+        {
+            printf("Some Paths length are more than legal\n");
+            return -1;
+        }
+    }
+    
+    return index;
+    
 }
