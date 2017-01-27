@@ -21,18 +21,12 @@ int main(int argc, char *argv[])
     printf("Starting filesystem\n");
     FS_Boot(path);
     Dir_Create("/alireza");
-    Dir_Create("/alireza/lotfi");
-    Dir_Create("/alireza/lotfi/sholi");
-    Dir_Create("/alireza/lotfi/sholi/test");
-    Dir_Create("/alireza/lotfi/sholi/test/test");
-    Dir_Create("/alireza/lotfi/sholi/test2");
-        Dir_Create("/alireza/lotfi/sholi/test3");
-            Dir_Create("/alireza/lotfi/sholi/test4");
-                Dir_Create("/alireza/lotfi/sholi/test5");
-                    Dir_Create("/alireza/lotfi/sholi/test6");
-    Dir_Create("/alireza/lotfi/sholi/test/test2");
-    Dir_Size("/alireza/lotfi/sholi/test/test2");
-    Dir_Size("/alireza/lotfi/sholi");
+    Dir_Create("/alireza/gholi");
+    Dir_Create("/alireza/reza");
+    File_Create("/alireza/reza/test.txt");
+    File_Create("/alireza/test.txt");
+    char *buffer = NULL;
+    Dir_Read("/alireza", buffer,  Dir_Size("/alireza"));
     FS_Sync();
     return 0;
 }
