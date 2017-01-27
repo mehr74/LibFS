@@ -19,7 +19,7 @@ int main(int argc, char *argv[])
 
     printf("Starting filesystem\n");
     FS_Boot(path);
-    Dir_Create("/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p");
+    Dir_Create("/alireza");
     FS_Sync();
     return 0;
 }

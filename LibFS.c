@@ -121,11 +121,8 @@ int Dir_Create(char *path)
     // tokenize path and make array of path elements...
     int i = BreakPathName(myPath, array);
 
+    addDirectory(myPath, array, i);
 
-    printf("i = %d\n", i);
-    int k;
-    for(k = 0; k < i; k++)
-        printf("%s\n", array[k]);
     return 0;
 }
 
