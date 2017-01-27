@@ -39,7 +39,7 @@ int BuildRootDirectory()
         return -1;
     }
 
-    // Write root directory data in disk
+    // Write root directory inode in disk
     WriteInodeInSector(i, rootInode);
 
     free(rootInode);
@@ -173,6 +173,9 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
     printf("index : %d", index);
     if(index == 1)
     {
+
+        //---------------------------------------------------------------------
+        // Add entry to parent
         DirectoryEntry *dirEntry = (DirectoryEntry *) malloc ( sizeof(DirectoryEntry));
 
         int inodeIndex = FindNextAvailableInodeBlock();
@@ -185,7 +188,27 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
         dirEntry->inodePointer = inodeIndex;
 
         addDirectoryEntry(0, dirEntry);
+
+
+        //--------------------------------------------------------------------
+        // allocate inode block and data block
+        char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE);
+        BuildInode(inodeBlock, DIRECTORY_ID);
+
+        InitializeDirectoryInode(inodeBlock, dataIndex);
+
+        char *dataBlock = calloc(sizeof(char), SECTOR_SIZE);
+        InitializeDirectoryFirstDataBlock(dataBlock, 0, inodeIndex);
+
+        Disk_Write(dataIndex + DATA_FIRST_BLOCK_INDEX, dataBlock);
+
+        // Write directory inode in disk
+        WriteInodeInSector(inodeIndex, inodeBlock);
+
+        free(inodeBlock);
+        free(dataBlock);
     }
+    return 0;
 }
 
 
