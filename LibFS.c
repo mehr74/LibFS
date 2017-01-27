@@ -121,7 +121,11 @@ int Dir_Create(char *path)
     // tokenize path and make array of path elements...
     int i = BreakPathName(myPath, array);
 
-    addDirectory(myPath, array, i);
+    if(addDirectory(myPath, array, i) != 0)
+    {
+        osErrno = E_CREATE;
+        return -1;
+    }
 
     return 0;
 }

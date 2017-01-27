@@ -251,7 +251,6 @@ int WriteInodeInSector ( int inodeNumber , char* inodeData){
         return -1;
     }
     
-    printf("inode of sector index : %d\n", inodeOfSectorIndex);
     // Change the data of inoded
     memcpy((char*)sectorBuffer+INODE_SIZE*inodeOfSectorIndex, (char*)inodeData, INODE_SIZE);
 
@@ -294,7 +293,6 @@ int ReadInode(int inodeNumber, char* inodeData)
         return -1;
     }
 
-    printf("inode of sector index : %d\n", inodeOfSectorIndex);
     // Change the data of inoded
     memcpy((char*)inodeData, (char*)sectorBuffer+INODE_SIZE*inodeOfSectorIndex, INODE_SIZE);
 
