@@ -20,4 +20,7 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index);
 int StringToInt (char* numberInStringType);
 int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber);
 
+int DirSizeFromInode(int inodeNumber);
+
+
 #endif // DIRECTORY_H
