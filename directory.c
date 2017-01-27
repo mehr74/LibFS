@@ -426,9 +426,7 @@ int DirReadFromInode(int inodeNumber, char* buffer , int size)
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
-    char directoryEntryNumberInString[sizeof(int)];
     
-    DirectoryEntry directoryEntryTemp;
     
     int sectorNumber=size/(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH))+1;
     int entryNumber=(size/DIRECTORY_LENGTH)%(SECTOR_SIZE/DIRECTORY_LENGTH);
@@ -475,11 +473,8 @@ int DirReadFromInode(int inodeNumber, char* buffer , int size)
         //create directoryEntry
         //copy the PathName of each directory to buffer
         for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
-            memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
-            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
-            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
-            
-            memcpy(buffer+(((i*(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH)))+j)*PATH_LENGTH_MAX),directoryEntryTemp.pathName,PATH_LENGTH_MAX);
+            memcpy(buffer+(((i*(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH)))+j)*DIRECTORY_LENGTH),
+                   sectorBuffer+j*DIRECTORY_LENGTH,DIRECTORY_LENGTH);
             
             if(i==sectorNumber-1 && j==entryNumber-1)
             {
