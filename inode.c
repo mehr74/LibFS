@@ -267,6 +267,41 @@ int WriteInodeInSector ( int inodeNumber , char* inodeData){
     return 0;
 }
 
+
+int ReadInode(int inodeNumber, char* inodeData)
+{
+
+    // define char* to read appropriate sector
+    char* sectorBuffer= calloc(sizeof(char),SECTOR_SIZE);
+
+    // check whether memory is allocated or not ...
+    if(sectorBuffer == NULL)
+    {
+        // Can't allocated memory for superBlock ...
+        printf("Faild to allocate memory for sectorBuffer\n");
+        return -1;
+    }
+
+    // define variables
+    int sectorNumber=inodeNumber/INODE_PER_BLOCK_NUM;
+    int inodeOfSectorIndex=inodeNumber%INODE_PER_BLOCK_NUM;
+
+    // Read the sector and check the errors
+    if( Disk_Read(INODE_FIRST_BLOCK_INDEX + sectorNumber, sectorBuffer) == -1)
+    {
+        printf("Disk failed to read block of appropriate inode\n");
+        free(sectorBuffer);
+        return -1;
+    }
+
+    printf("inode of sector index : %d\n", inodeOfSectorIndex);
+    // Change the data of inoded
+    memcpy((char*)inodeData, (char*)sectorBuffer+INODE_SIZE*inodeOfSectorIndex, INODE_SIZE);
+
+    free(sectorBuffer);
+    return 0;
+}
+
 int isDirectoryInode (char *inode)
 {
     if(inode[0] == DIRECTORY_ID)
