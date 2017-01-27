@@ -491,3 +491,164 @@ int DirReadFromInode(int inodeNumber, char* buffer , int size)
     
     return 0;
 }
+
+int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
+{
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char* inodeSegmentPointerToNextSector =calloc(sizeof(char),sizeof(int));
+    char* nextSectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char* firstEntryOfNextSectorBuffer=calloc(sizeof(char),DIRECTORY_LENGTH);
+    char directoryEntryNumberInString[sizeof(int)];
+    
+    DirectoryEntry directoryEntryTemp;
+
+    int inodePointerToSectorNumber;
+    int inodePointerToNextSectorNumber;
+    int i,j;
+    
+    int isFind=0;
+    
+    // Read the inode
+    if( ReadInode(inodeNumber, inodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        free(inodeSegmentPointerToNextSector);
+        free(nextSectorBuffer);
+        free(firstEntryOfNextSectorBuffer);
+        return -1;
+    }
+    
+    // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
+    if (inodeBuffer[0] & FILE_ID)
+    {
+        printf("Inode is not directory, it is file.\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        free(inodeSegmentPointerToNextSector);
+        free(nextSectorBuffer);
+        free(firstEntryOfNextSectorBuffer);
+        return -1;
+    }
+    
+    //find appropriate sector and looking for inodeSearch
+    for (i=0;i<SECTOR_PER_FILE_MAX;i++)
+    {
+        //find sector number
+        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
+        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+        //read the appropriate sector and write in sectorBuffer
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to read sector block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            free(inodeSegmentPointerToNextSector);
+            free(nextSectorBuffer);
+            free(firstEntryOfNextSectorBuffer);
+            return -1;
+        }
+        
+        //also find next sector number and read it for deletation
+        if (i<SECTOR_PER_FILE_MAX-1)
+        {
+            memcpy((void*)inodeSegmentPointerToNextSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+(i+1)*sizeof(int),sizeof(int));
+            inodePointerToNextSectorNumber=StringToInt(inodeSegmentPointerToNextSector);
+        
+            //read the appropriate sector and write in sectorBuffer
+            if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToNextSectorNumber, nextSectorBuffer) == -1)
+            {
+                printf("Disk failed to read sector block\n");
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                free(inodeSegmentPointerToNextSector);
+                free(nextSectorBuffer);
+                free(firstEntryOfNextSectorBuffer);
+                return -1;
+            }
+        }
+        
+        // save first entry of next sector buffer
+        memcpy(firstEntryOfNextSectorBuffer,nextSectorBuffer,DIRECTORY_LENGTH);
+        
+        //create directoryEntry
+        //check every entry if it is match with search word
+        for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
+            memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
+            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
+            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            
+            if(strcmp(directoryEntryTemp.pathName,"")==0 && isFind==0)
+            {
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                free(inodeSegmentPointerToNextSector);
+                free(nextSectorBuffer);
+                free(firstEntryOfNextSectorBuffer);
+                return -1;
+            }
+            
+            if(directoryEntryTemp.inodePointer==inodeSearch)
+            {
+                isFind=1;
+            }
+            
+            if(strcmp(directoryEntryTemp.pathName,"")==0 && isFind==0)
+            {
+                
+                // write sectorBuffer in disk
+                if( Disk_Write(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+                {
+                    printf("Disk failed to write changed block\n");
+                }
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                free(inodeSegmentPointerToNextSector);
+                free(nextSectorBuffer);
+                free(firstEntryOfNextSectorBuffer);
+                return 0;
+            }
+            
+            if(isFind==1){
+                if(j<(SECTOR_SIZE)/DIRECTORY_LENGTH-1)
+                {
+                    memcpy(sectorBuffer+j*DIRECTORY_LENGTH,sectorBuffer+(j+1)*DIRECTORY_LENGTH,DIRECTORY_LENGTH);
+                }
+                if(j==(SECTOR_SIZE)/DIRECTORY_LENGTH-1 && i<SECTOR_PER_FILE_MAX-1)
+                {
+                    memcpy(sectorBuffer+j*DIRECTORY_LENGTH,firstEntryOfNextSectorBuffer,DIRECTORY_LENGTH);
+                }
+                if(j==(SECTOR_SIZE)/DIRECTORY_LENGTH-1 && i==SECTOR_PER_FILE_MAX-1)
+                {
+                    memset(sectorBuffer+j*DIRECTORY_LENGTH,0,DIRECTORY_LENGTH);
+                }
+            }
+        }
+        
+        // write sectorBuffer in disk
+        if( Disk_Write(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to write changed block\n");
+        }
+        
+    }
+    
+    free(inodeBuffer);
+    free(inodeSegmentPointerToSector);
+    free(sectorBuffer);
+    free(inodeSegmentPointerToNextSector);
+    free(nextSectorBuffer);
+    free(firstEntryOfNextSectorBuffer);
+    return 0;
+
+}

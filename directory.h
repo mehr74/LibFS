@@ -25,4 +25,7 @@ int DirSizeFromInode(int inodeNumber);
 
 int DirReadFromInode(int inodeNumber, char* buffer , int size);
 
+int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch );
+
+
 #endif // DIRECTORY_H
