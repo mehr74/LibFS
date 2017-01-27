@@ -236,9 +236,9 @@ int Dir_Unlink(char *path)
         return -1;
 
 
-    Disk_Save("disk1.txt");
     printf("DeleteEntryFromDirectory( %d, %d ) ", parent, current);
     DeleteEntryFromDirectory(parent, current);
+
     Disk_Save("disk2.txt");
     return 0;
 }
