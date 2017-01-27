@@ -218,6 +218,28 @@ int Dir_Read(char *path, void *buffer, int size)
 int Dir_Unlink(char *path)
 {
     printf("Dir_Unlink\n");
+
+    // allocate memory for storing string...
+    char* array[128];
+    char myPath[256];
+
+    // make a copy of path to modify
+    strcpy(myPath, path);
+
+    // tokenize path and make array of path elements...
+    int i = BreakPathName(myPath, array);
+
+    int parent;
+    int current;
+
+    if(findLeafInodeNumber(myPath, array, i, &parent, &current, 0) != 0)
+        return -1;
+
+
+    Disk_Save("disk1.txt");
+    printf("DeleteEntryFromDirectory( %d, %d ) ", parent, current);
+    DeleteEntryFromDirectory(parent, current);
+    Disk_Save("disk2.txt");
     return 0;
 }
 
