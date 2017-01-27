@@ -257,8 +257,10 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
         //check every entry if it is match with search word
         for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
             memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
-            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
-            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            //memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
+            //printBlockHex(directoryEntryNumberInString,sizeof(int));
+            //directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            directoryEntryTemp.inodePointer=sectorBuffer+j*DIRECTORY_LENGTH;
             
             if(strcmp(directoryEntryTemp.pathName,"")==0)
             {
@@ -273,7 +275,7 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
             
             if(strcmp(search, directoryEntryTemp.pathName)==0)
             {
-                
+                printf("i=%d,j=%d\n",i,j);
                 *outputInodeNumber=directoryEntryTemp.inodePointer;
                 free(sectorOfInodeBuffer);
                 free(inodeBuffer);
@@ -291,17 +293,7 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     free(inodeSegmentPointerToSector);
     free(sectorBuffer);
     free(directoryEntry);
-    return -5;
+    return -1;
 }
 
-
-int StringToInt (char* numberInStringType){
-    int num=0;
-    while(*numberInStringType)
-    {
-        num=((*numberInStringType)-'0')+num*2;
-        numberInStringType++;
-    }
-    return num;
-}
 
