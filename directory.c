@@ -246,8 +246,6 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     char directoryEntryNumberInString[sizeof(int)];
     
     DirectoryEntry directoryEntryTemp;
-    int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
-    int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
     int inodePointerToSectorNumber;
     int i,j;
     
@@ -341,10 +339,7 @@ int DirSizeFromInode(int inodeNumber)
     
     DirectoryEntry directoryEntryTemp;
     
-    int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
-    int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
     int inodePointerToSectorNumber;
-    
     int i,j;
     
     // Read the inode
@@ -406,8 +401,78 @@ int DirSizeFromInode(int inodeNumber)
     free(inodeSegmentPointerToSector);
     free(sectorBuffer);
     return ((SECTOR_SIZE)/DIRECTORY_LENGTH)*SECTOR_PER_FILE_MAX*DIRECTORY_LENGTH;
+    
+}
 
+
+int DirReadFromInode(int inodeNumber, char* buffer , int size)
+{
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char directoryEntryNumberInString[sizeof(int)];
     
+    DirectoryEntry directoryEntryTemp;
     
+    int sectorNumber=size/(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH))+1;
+    int entryNumber=(size/DIRECTORY_LENGTH)%(SECTOR_SIZE/DIRECTORY_LENGTH);
+    int inodePointerToSectorNumber;
+
+    int i,j;
+    
+    // Read the inode
+    if( ReadInode(inodeNumber, inodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
+    if (inodeBuffer[0] & FILE_ID)
+    {
+        printf("Inode is not directory, it is file.\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    for (i=0;i<sectorNumber;i++)
+    {
+        //find sector number
+        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
+        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+        //read the appropriate sector and write in sectorBuffer
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to read sector block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return -1;
+        }
+        
+        //create directoryEntry
+        //copy the PathName of each directory to buffer
+        for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
+            memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
+            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
+            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            
+            memcpy(buffer+(((i*(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH)))+j)*PATH_LENGTH_MAX),directoryEntryTemp.pathName,PATH_LENGTH_MAX);
+            
+            if(i==sectorNumber-1 && j==entryNumber-1)
+            {
+                break;
+            }
+        }
+        
+    }
+    
+    return 0;
     
 }

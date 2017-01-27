@@ -22,5 +22,6 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
 
 int DirSizeFromInode(int inodeNumber);
 
+int DirReadFromInode(int inodeNumber, char* buffer , int size);
 
 #endif // DIRECTORY_H
