@@ -192,6 +192,20 @@ int InitializeDirectoryInode(char *inode, int dataSectorNum)
     return 0;
 }
 
+int InitializeFileInode(char *inode, int dataSectorNum)
+{
+    // Check if inode is a directory inode
+    if(isDirectoryInode(inode) == 0)
+    {
+        printf("Call InitializeFileInode with directory inode!");
+        return -1;
+    }
+
+    inode[INODE_FIRST_SECTOR_POINTER_INDEX] =  dataSectorNum;
+
+    return 0;
+}
+
 void printBlockHex(char *block, int size)
 {
     int n=size, i =0;
@@ -225,5 +239,12 @@ int InitializeDirectoryFirstDataBlock(char* dataBlock, int parentInode, int myIn
     free(current);
     free(parent);
 
+    return 0;
+}
+
+int InitializeFileFirstDataBlock(char* dataBlock)
+{
+    int size = 0;
+    dataBlock[0] = size;
     return 0;
 }

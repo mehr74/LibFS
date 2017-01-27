@@ -23,7 +23,9 @@ int main(int argc, char *argv[])
     Dir_Create("/alireza");
     Dir_Create("/alireza/gholi");
     Dir_Create("/alireza/reza");
-    char *buffer;
+    File_Create("/alireza/reza/test.txt");
+    File_Create("/alireza/test.txt");
+    char *buffer = NULL;
     Dir_Read("/alireza", buffer,  Dir_Size("/alireza"));
     FS_Sync();
     return 0;

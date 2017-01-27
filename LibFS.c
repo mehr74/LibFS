@@ -3,6 +3,7 @@
 #include "builder.h"
 #include "parameters.h"
 #include "directory.h"
+#include "file.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,6 +67,37 @@ int FS_Sync()
 int File_Create(char *file)
 {
     printf("FS_Create\n");
+
+    // allocate memory for storing string...
+    char* array[128];
+    char myPath[256];
+
+    // make a copy of path to modify
+    strcpy(myPath, file);
+
+    // tokenize path and make array of path elements...
+    int i = BreakPathName(myPath, array);
+
+    int parent;
+    int current;
+
+    if(findLeafInodeNumber(myPath, array, i, &parent, &current, 1) != 0)
+    {
+        if(findLeafInodeNumber(myPath, array, i, &parent, &current, 0) == 0)
+        {
+            osErrno = E_GENERAL;
+            return -1;
+        }
+        osErrno = E_CREATE;
+        return -1;
+    }
+
+    if(addFile(parent, array[i-1]) != 0)
+    {
+        osErrno = E_CREATE;
+        return -1;
+    }
+
     return 0;
 }
 
@@ -77,6 +109,7 @@ int File_Open(char *file)
 
 int File_Read(int fd, void *buffer, int size)
 {
+
     printf("FS_Read\n");
     return 0;
 }
@@ -151,7 +184,6 @@ int Dir_Size(char *path)
         return -1;
     int size = DirSizeFromInode(current);
 
-    printf("Parent : %d \t Current : %d\n", parent, current);
     printf("Size : %d\n", size);
 
     return size;

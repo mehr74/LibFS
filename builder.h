@@ -8,7 +8,9 @@ int BuildBitmapBlocks();
 int BuildDataBlock(char* dataBlock);
 int BuildInode(char* inode, char type);
 int InitializeDirectoryInode(char* inode, int dataSectorNum);
+int InitializeFileInode(char* inode, int dataSectorNum);
 int InitializeDirectoryFirstDataBlock(char* dataBlock, int parentInode, int myInode);
+int InitializeFileFirstDataBlock(char* dataBlock);
 void printBlockHex(char* block, int size);
 
 #endif  // BUILDER_H

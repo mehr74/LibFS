@@ -177,8 +177,6 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
 
     //--------------------------------------------------------------------
     // allocate inode block and data block
-    DirectoryEntry *dirEntry = (DirectoryEntry *) malloc ( sizeof(DirectoryEntry));
-
     int inodeIndex = FindNextAvailableInodeBlock();
     if(inodeIndex < 0)
     {
@@ -196,9 +194,6 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
     }
 
     ChangeDataBitmapStatus(dataIndex, OCCUPIED);
-
-    strcpy(dirEntry->pathName, arrayOfBreakPathName[index-1]);
-    dirEntry->inodePointer = inodeIndex;
 
     char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE);
     BuildInode(inodeBlock, DIRECTORY_ID);
@@ -218,7 +213,11 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
 
     //---------------------------------------------------------------------
     // Add entry to parent
+    DirectoryEntry *dirEntry = (DirectoryEntry *) malloc ( sizeof(DirectoryEntry));
+    strcpy(dirEntry->pathName, arrayOfBreakPathName[index-1]);
+    dirEntry->inodePointer = inodeIndex;
     addDirectoryEntry(prevInode, dirEntry);
+    free(dirEntry);
 
     return 0;
 }
