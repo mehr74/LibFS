@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     Dir_Create("/alireza/lotfi");
     Dir_Create("/alireza/lotfi/sholi");
     Dir_Create("/alireza/lotfi/sholi/test");
+    Dir_Create("/alireza/lotfi/sholi/test/test");
     FS_Sync();
     
     int output=0;
