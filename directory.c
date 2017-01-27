@@ -81,18 +81,22 @@ int BreakPathName( char* pathName , char* arrayOfBreakPathName[])
 
 
 //retrun -1 if error
-//return -2 if inode is not directory
+//return -1 if inode is not directory
 int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
 {
     char* sectorOfInodeBuffer=calloc(sizeof(char),SECTOR_SIZE)
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
-    char
+    char* direcoryEntry=calloc(sizeof(char),DIRECTORY_LENGTH);
+    char directoryEntryNumberInString[sizeof(int)];
+
+    
     
     DirectoryEntry directoryEntryTemp;
-    int
     int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
     int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
+    int inodePointerToSectorNumber;
     int i,j;
     
     // Read the inode
@@ -101,7 +105,9 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
         printf("Disk failed to read inode block\n");
         free(sectorOfInodeBuffer);
         free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
         free(sectorBuffer);
+        free(direcoryEntry);
         return -1;
     }
     
@@ -114,19 +120,83 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
         printf("Inode is not directory, it is file.\n");
         free(sectorOfInodeBuffer);
         free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
         free(sectorBuffer);
-        return -2;
+        free(direcoryEntry);
+        return -1;
     }
     
+    //find appropriate sector and looking for search word
     for (i=0;i<SECTOR_PER_FILE_MAX;i++)
     {
+        //find sector number
+        inodeSegmentPointerToSector=memcpy((void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),(void*)inodePointerToSectorNumber,sizeof(int));
+        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+        //read the appropriate sector and write in sectorBuffer
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + sectorOfInodeNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to read sector block\n");
+            free(sectorOfInodeBuffer);
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            free(direcoryEntry);
+            return -1;
+        }
+        
+        //create directoryEntry
+        //check every entry if it is match with search word
+        for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
+            memcpy(sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,directoryEntryTemp.pathName,PATH_LENGTH_MAX);
+            memcpy(sectorBuffer+j*DIRECTORY_LENGTH,directoryEntryNumberInString,sizeof(int));
+            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            
+            if(strcmp(directoryEntryTemp.pathName,"\0")==0)
+            {
+                printf("No directory Find\n");
+                free(sectorOfInodeBuffer);
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                free(direcoryEntry);
+                return -1;
+            }
+            
+            if(strcmp(search, directoryEntryTemp.pathName)==0)
+            {
+                *outputInodeNumber=directoryEntryTemp.inodePointer;
+                free(sectorOfInodeBuffer);
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                free(direcoryEntry);
+                return 0;
+            }
+        }
         
     }
-
     
-
-
-
-
-
+    free(sectorOfInodeBuffer);
+    free(inodeBuffer);
+    free(inodeSegmentPointerToSector);
+    free(sectorBuffer);
+    free(direcoryEntry);
+    return -1;
 }
+
+
+int StringToInt (char* numberInStringType){
+    int num=0;
+    while(*numberInStringType)
+    {
+        num=((*numberInStringType)-'0')+num*2;
+        numberInStringType++;
+    }
+    return num;
+}
+
+
+
+
+
