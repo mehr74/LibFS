@@ -103,7 +103,7 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
-    char* direcoryEntry=calloc(sizeof(char),DIRECTORY_LENGTH);
+    char* directoryEntry=calloc(sizeof(char),DIRECTORY_LENGTH);
     char directoryEntryNumberInString[sizeof(int)];
     
     DirectoryEntry directoryEntryTemp;
@@ -120,12 +120,12 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
         free(inodeBuffer);
         free(inodeSegmentPointerToSector);
         free(sectorBuffer);
-        free(direcoryEntry);
+        free(directoryEntry);
         return -1;
     }
     
     //Copy appropriate inode from sector into inodeBuffer
-    memcpy((void*)sectorOfInodeBuffer+INODE_SIZE*inodeIndexInSector,(void*)inodeBuffer,INODE_SIZE);
+    memcpy((void*)inodeBuffer,(void*)sectorOfInodeBuffer+INODE_SIZE*inodeIndexInSector,INODE_SIZE);
     
     // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
     if (inodeBuffer[0] & FILE_ID)
@@ -135,7 +135,7 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
         free(inodeBuffer);
         free(inodeSegmentPointerToSector);
         free(sectorBuffer);
-        free(direcoryEntry);
+        free(directoryEntry);
         return -1;
     }
     
@@ -143,7 +143,7 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     for (i=0;i<SECTOR_PER_FILE_MAX;i++)
     {
         //find sector number
-        inodeSegmentPointerToSector=memcpy((void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),(void*)inodePointerToSectorNumber,sizeof(int));
+        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
         inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
         
         //read the appropriate sector and write in sectorBuffer
@@ -154,15 +154,15 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
             free(inodeBuffer);
             free(inodeSegmentPointerToSector);
             free(sectorBuffer);
-            free(direcoryEntry);
+            free(directoryEntry);
             return -1;
         }
         
         //create directoryEntry
         //check every entry if it is match with search word
         for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
-            memcpy(sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,directoryEntryTemp.pathName,PATH_LENGTH_MAX);
-            memcpy(sectorBuffer+j*DIRECTORY_LENGTH,directoryEntryNumberInString,sizeof(int));
+            memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
+            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
             directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
             
             if(strcmp(directoryEntryTemp.pathName,"")==0)
@@ -172,18 +172,19 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
                 free(inodeBuffer);
                 free(inodeSegmentPointerToSector);
                 free(sectorBuffer);
-                free(direcoryEntry);
+                free(directoryEntry);
                 return -1;
             }
             
             if(strcmp(search, directoryEntryTemp.pathName)==0)
             {
+                
                 *outputInodeNumber=directoryEntryTemp.inodePointer;
                 free(sectorOfInodeBuffer);
                 free(inodeBuffer);
                 free(inodeSegmentPointerToSector);
                 free(sectorBuffer);
-                free(direcoryEntry);
+                free(directoryEntry);
                 return 0;
             }
         }
@@ -194,8 +195,8 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     free(inodeBuffer);
     free(inodeSegmentPointerToSector);
     free(sectorBuffer);
-    free(direcoryEntry);
-    return -1;
+    free(directoryEntry);
+    return -5;
 }
 
 
