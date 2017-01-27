@@ -551,11 +551,8 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
             free(firstEntryOfNextSectorBuffer);
             return -1;
         }
-
-        printf("sectorNum : %d", DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber);
-        printBlockHex(sectorBuffer, 512);
         
-        //also find next sector number and read it for deletation
+        // also find next sector number and read it for deletation
         if (i<SECTOR_PER_FILE_MAX-1)
         {
             memcpy((void*)inodeSegmentPointerToNextSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+(i+1)*sizeof(int),sizeof(int));
@@ -601,7 +598,7 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
                 isFind=1;
             }
             
-            if(strcmp(directoryEntryTemp.pathName,"")==0 && isFind==0)
+            if(strcmp(directoryEntryTemp.pathName,"")==0 && isFind==1)
             {
                 
                 // write sectorBuffer in disk
@@ -619,19 +616,20 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
             }
             
             if(isFind==1){
-                if(j<(SECTOR_SIZE)/DIRECTORY_LENGTH-1)
+                if(j<((SECTOR_SIZE/DIRECTORY_LENGTH)-1))
                 {
                     memcpy(sectorBuffer+j*DIRECTORY_LENGTH,sectorBuffer+(j+1)*DIRECTORY_LENGTH,DIRECTORY_LENGTH);
                 }
-                if(j==(SECTOR_SIZE)/DIRECTORY_LENGTH-1 && i<SECTOR_PER_FILE_MAX-1)
+                else if(j==(SECTOR_SIZE)/DIRECTORY_LENGTH-1 && i<SECTOR_PER_FILE_MAX-1)
                 {
                     memcpy(sectorBuffer+j*DIRECTORY_LENGTH,firstEntryOfNextSectorBuffer,DIRECTORY_LENGTH);
                 }
-                if(j==(SECTOR_SIZE)/DIRECTORY_LENGTH-1 && i==SECTOR_PER_FILE_MAX-1)
+                else if(j==(SECTOR_SIZE)/DIRECTORY_LENGTH-1 && i==SECTOR_PER_FILE_MAX-1)
                 {
                     memset(sectorBuffer+j*DIRECTORY_LENGTH,0,DIRECTORY_LENGTH);
                 }
             }
+
         }
         
         // write sectorBuffer in disk
@@ -648,6 +646,8 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
     free(inodeSegmentPointerToNextSector);
     free(nextSectorBuffer);
     free(firstEntryOfNextSectorBuffer);
+    
+    printf("finish\n");
     return 0;
 
 }
