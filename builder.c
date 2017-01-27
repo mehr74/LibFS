@@ -3,6 +3,7 @@
 #include "parameters.h"
 #include "LibDisk.h"
 #include "directory.h"
+#include "inode.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -173,6 +174,56 @@ int BuildInode(char* inode, char type)
     }
 
     inode[0] = type;
+
+    return 0;
+}
+
+int InitializeDirectoryInode(char *inode, int dataSectorNum)
+{
+    // Check if inode is a directory inode
+    if(isDirectoryInode(inode) == -1)
+    {
+        printf("Call InitializeDirectoryInode with file inode!");
+        return -1;
+    }
+
+    inode[INODE_FIRST_SECTOR_POINTER_INDEX] =  dataSectorNum;
+
+    return 0;
+}
+
+void printBlockHex(char *block, int size)
+{
+    int n=size, i =0;
+    char* byte_array = block;
+
+    while (i < n)
+    {
+        if(i % 8 == 0)
+            puts("");
+         printf("%02X ",(unsigned)byte_array[i]);
+         i++;
+    }
+    puts("");
+}
+
+int InitializeDirectoryFirstDataBlock(char* dataBlock, int parentInode, int myInode)
+{
+    // Initialize two directory entry (.) (..) and a terminator
+    DirectoryEntry *current = (DirectoryEntry *) malloc (sizeof(DirectoryEntry));
+    DirectoryEntry *parent = (DirectoryEntry *) malloc(sizeof(DirectoryEntry));
+
+    current->inodePointer = myInode;
+    strcpy(current->pathName, ".");
+
+    parent->inodePointer = parentInode;
+    strcpy(parent->pathName, "..");
+
+    addDirectoryEntryOnSector(dataBlock, current);
+    addDirectoryEntryOnSector(dataBlock, parent);
+
+    free(current);
+    free(parent);
 
     return 0;
 }

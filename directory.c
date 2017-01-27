@@ -18,19 +18,26 @@ int BuildRootDirectory()
     // get one availabe inode block
     // since all inode are no availabe i must be 0
     int i = FindNextAvailableInodeBlock();
-    int j;
-    Disk_Save("disk1.txt");
     ChangeInodeBitmapStatus(i, OCCUPIED);
-    Disk_Save("disk2.txt");
 
-    for(i = 0; i < 513; i++)
-    {
-        j = FindNextAvailableDataBlock();
-        ChangeDataBitmapStatus(j, OCCUPIED);
-        printf("%d\n", j);
-    }
-    Disk_Save("disk3.txt");
+    // get one availabe data block
+    int j = FindNextAvailableDataBlock();
     ChangeDataBitmapStatus(j, OCCUPIED);
+
+    InitializeDirectoryInode(rootInode, j);
+
+    char *dataBlock;
+    dataBlock = calloc(sizeof(char), SECTOR_SIZE);
+
+
+    InitializeDirectoryFirstDataBlock(dataBlock, i, i);
+
+    if(Disk_Write(DATA_FIRST_BLOCK_INDEX + j, dataBlock) == -1)
+    {
+        // Disk couldn't write dataBlock
+        printf("Disk Failed to write datablock\n");
+        return -1;
+    }
 
     // Write root directory data in disk
     WriteInodeInSector(i, rootInode);
@@ -39,45 +46,53 @@ int BuildRootDirectory()
     return 0;
 }
 
-
-int BreakPathName( char* pathName , char* arrayOfBreakPathName[])
+int  BreakPathName(char *pathName, char **arrayOfBreakPathName)
 {
-    // check path length
-    if(strlen(pathName)>FULL_PATH_LENGTH_MAX)
+    int index = 0;
+    while (*pathName != '\0')
     {
-        printf("Full Path name is more than legal character\n");
-        return -1;
+        index++;
+        // if not the end of pathName
+        while (*pathName == '/')
+            *pathName++ = '\0';
+        if(*pathName)
+            *arrayOfBreakPathName++ = pathName;          // save the argument position
+        while (*pathName != '/' && *pathName != '\0')
+            pathName++;             // skip the argument until
     }
-    
-    // define variable
-    int index=0;
-    int i=0;
-    const char* search="/";
-    char* token;
-    
-    char strTemp[strlen(pathName)];
-    strcpy(strTemp,pathName);
-    
-    // divide the strTemp(pathName) into directories
-    token=strtok(strTemp,search);
-    while(token!=NULL){
-        arrayOfBreakPathName[index]=token;
-        token = strtok(NULL, search);
-    }
-    
-    // check value of index. it must be at most 16
-    for (i=0;i<index;i++)
-    {
-        if(strlen(arrayOfBreakPathName[i])>PATH_LENGTH_MAX)
-        {
-            printf("Some Paths length are more than legal\n");
-            return -1;
-        }
-    }
-    
+    *arrayOfBreakPathName = '\0';                 // mark the end of argument list
     return index;
-    
 }
+
+int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry)
+{
+    int i;
+    for(i = 0; i < SECTOR_SIZE/DIRECTORY_LENGTH; i++)
+    {
+        if(dataBlock[i*DIRECTORY_LENGTH + 4] == '\0')
+            break;
+    }
+
+    if(i * DIRECTORY_ID + 19 > SECTOR_SIZE)
+        return -1;
+    strcpy(&dataBlock[i*DIRECTORY_LENGTH + 4], dirEntry->pathName);
+    dataBlock[i*DIRECTORY_LENGTH] = dirEntry->inodePointer;
+
+    if((i+1)*DIRECTORY_LENGTH + 19 > SECTOR_SIZE)
+    {
+        return -2;
+    }
+
+    dataBlock[(i+1)*DIRECTORY_LENGTH + 4] = '\0';
+
+    return 0;
+}
+
+int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
+{
+
+}
+
 
 
 //retrun -1 if error
@@ -195,8 +210,4 @@ int StringToInt (char* numberInStringType){
     }
     return num;
 }
-
-
-
-
 
