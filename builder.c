@@ -219,8 +219,8 @@ int InitializeDirectoryFirstDataBlock(char* dataBlock, int parentInode, int myIn
     parent->inodePointer = parentInode;
     strcpy(parent->pathName, "..");
 
-    addDirectoryEntry(dataBlock, current);
-    addDirectoryEntry(dataBlock, parent);
+    addDirectoryEntryOnSector(dataBlock, current);
+    addDirectoryEntryOnSector(dataBlock, parent);
 
     free(current);
     free(parent);

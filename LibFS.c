@@ -112,7 +112,7 @@ int Dir_Create(char *path)
     printf("Dir_Create %s\n", path);
 
     // allocate memory for storing string...
-    char* array[64];
+    char* array[128];
     char myPath[256];
 
     // make a copy of path to modify

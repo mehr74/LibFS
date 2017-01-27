@@ -15,8 +15,6 @@ int BuildRootDirectory()
     rootInode = calloc(sizeof(char), SECTOR_SIZE);
     BuildInode(rootInode, DIRECTORY_ID);
 
-    Disk_Save("disk3.txt");
-
     // get one availabe inode block
     // since all inode are no availabe i must be 0
     int i = FindNextAvailableInodeBlock();
@@ -66,18 +64,33 @@ int  BreakPathName(char *pathName, char **arrayOfBreakPathName)
     return index;
 }
 
-int addDirectoryEntry(char* dataBlock, DirectoryEntry *dirEntry)
+int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry)
 {
     int i;
-    for(i = 4; i < SECTOR_SIZE; i+=20)
+    for(i = 0; i < SECTOR_SIZE/DIRECTORY_LENGTH; i++)
     {
-        if(dataBlock[i] == '\0')
+        if(dataBlock[i*DIRECTORY_LENGTH + 4] == '\0')
             break;
     }
-    strcpy(&dataBlock[i], dirEntry->pathName);
-    dataBlock[i-4] = dirEntry->inodePointer;
+
+    if(i * DIRECTORY_ID + 19 > SECTOR_SIZE)
+        return -1;
+    strcpy(&dataBlock[i*DIRECTORY_LENGTH + 4], dirEntry->pathName);
+    dataBlock[i*DIRECTORY_LENGTH] = dirEntry->inodePointer;
+
+    if((i+1)*DIRECTORY_LENGTH + 19 > SECTOR_SIZE)
+    {
+        return -2;
+    }
+
+    dataBlock[(i+1)*DIRECTORY_LENGTH + 4] = '\0';
 
     return 0;
+}
+
+int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
+{
+
 }
 
 
