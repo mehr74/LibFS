@@ -257,10 +257,10 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
         //check every entry if it is match with search word
         for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
             memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
-            //memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
-            //printBlockHex(directoryEntryNumberInString,sizeof(int));
-            //directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
-            directoryEntryTemp.inodePointer=sectorBuffer+j*DIRECTORY_LENGTH;
+            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
+            printBlockHex(directoryEntryNumberInString,sizeof(int));
+            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            //directoryEntryTemp.inodePointer=sectorBuffer+j*DIRECTORY_LENGTH;
             
             if(strcmp(directoryEntryTemp.pathName,"")==0)
             {
@@ -296,4 +296,12 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     return -1;
 }
 
+
+int StringToInt (char* binaryCharArray){
+    int result=binaryCharArray[0];
+    result=binaryCharArray[1]<<8 | result;
+    result=binaryCharArray[2]<<16 | result;
+    result=binaryCharArray[3]<<24 | result;
+    return result;
+}
 

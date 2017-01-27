@@ -21,11 +21,12 @@ int main(int argc, char *argv[])
     printf("Starting filesystem\n");
     FS_Boot(path);
     Dir_Create("/alireza");
+    Dir_Create("/gholi");
     FS_Sync();
     
-    int output=-10;
-    int error=-10;
-    error=searchPathInInode(0,"alireza",&output);
+    int output=0;
+    int error=0;
+    error=searchPathInInode(0,"ghol",&output);
     printf("error=%d\noutput=%d\n",error,output);
     
     return 0;
