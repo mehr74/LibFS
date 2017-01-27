@@ -649,7 +649,7 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
 
 }
 
-int DataBlocksOccupiedByInode ( int inodeNumber , int* sectorNumbers)
+int DataBlocksOccupiedByDirectory ( int inodeNumber , int* sectorNumbers)
 {
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));

@@ -70,15 +70,12 @@ int addFile(int parentInode, char* fileName)
     return 0;
 }
 
-int initializeFileTableEntryByInode(int inodeNum, FileTableEntry *fileTableEntry)
+int CreateFileTable()
 {
-    char* inodeBlock = calloc(sizeof(char), INODE_SIZE);
-    if(ReadInode(inodeNum, inodeBlock) == -1)
+    fileTable = (FileTableEntry *) calloc(OPEN_FILE_NUM_MAX, sizeof(FileTableEntry));
+    if(fileTable == NULL)
         return -1;
-
-    fileTableEntry->inodePointer = inodeNum;
-    fileTableEntry->filePointer = 0;
-    fileTableEntry->fileDescriptor = getAvailabeFileDescriptor();
+    return 0;
 }
 
 int getAvailabeFileDescriptor()
@@ -88,8 +85,7 @@ int getAvailabeFileDescriptor()
         return -1;
     for(i = 0; i < OPEN_FILE_NUM_MAX; i++)
     {
-        FileTableEntry* fileTableEntry;
-        if(getFileTableEntry(i, fileTableEntry) == -1)
+        if(fileTable[i].isValid == NOT_VALID)
             return i;
     }
     return -1;

@@ -40,8 +40,14 @@ int FS_Boot(char *path)
         }
 
         // do all of the other stuff needed...
-        if (BuildMetadataBlocks() == -1) {
+        if (BuildMetadataBlocks() == -1)
+        {
             osErrno = E_GENERAL;
+        }
+        else if(CreateFileTable() == -1)
+        {
+            osErrno = E_GENERAL;
+            return -1;
         }
     }
     else
@@ -49,6 +55,11 @@ int FS_Boot(char *path)
         // check for magic number of block
         // handling errors
         if (CheckFileSystemSuperBlock() == -1)
+        {
+            osErrno = E_GENERAL;
+            return -1;
+        }
+        else if (CreateFileTable() == -1)
         {
             osErrno = E_GENERAL;
             return -1;
@@ -246,7 +257,7 @@ int Dir_Unlink(char *path)
 
 
     int DataBlocksOccupied[30];
-    int j = DataBlocksOccupiedByInode(current, DataBlocksOccupied);
+    int j = DataBlocksOccupiedByDirectory(current, DataBlocksOccupied);
 
     for (i = 0; i < j; i++)
     {

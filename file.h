@@ -7,16 +7,17 @@ typedef struct FileTableEntry
     int inodePointer;
     int filePointer;
     int sizeOfFile;
+    int isValid;
     char fileName[16];
     char filePath[256];
 } FileTableEntry;
 
 
 int addFile(int parentInode, char* fileName);
+int CreateFileTable();
 
-int initializeFileTableEntryByInode(int inodeNum, FileTableEntry *fileTableEntry);
+
 int getAvailabeFileDescriptor();
-int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry);
 
 int SizeOfFile(int inodeNumber);
 int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers);

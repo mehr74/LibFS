@@ -53,3 +53,6 @@ char BIT_4=0x10;       //is 0x10
 char BIT_5=0x20;       //is 0x20
 char BIT_6=0x40;       //is 0x40
 char BIT_7=0x80;       //is 0x80
+
+int VALID = 1;
+int NOT_VALID = 0;
