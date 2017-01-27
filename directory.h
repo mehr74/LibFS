@@ -19,6 +19,7 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index);
 
 int StringToInt (char* numberInStringType);
 int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber);
+int findLeafInodeNumber(char *path, char** array, int index, int *parent, int *current, int step);
 
 int DirSizeFromInode(int inodeNumber);
 

@@ -169,24 +169,13 @@ int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
 
 int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
 {
-    int i = 0;
-    int curInode = 0;
-    int prevInode = 0;
-    for(i = 0; i < index; i++)
-    {
-        prevInode = curInode;
-        if(searchPathInInode(prevInode, arrayOfBreakPathName[i], &curInode) != 0)
-        {
-            break;
-        }
-    }
+    int curInode;
+    int prevInode;
 
-    if(index - i != 1)
-    {
-        printf("Cant find parents of directory you want\n");
+    if(findLeafInodeNumber(pathName, arrayOfBreakPathName, index, &prevInode, &curInode, 1) != 0)
         return -1;
-    }
-        //--------------------------------------------------------------------
+
+    //--------------------------------------------------------------------
     // allocate inode block and data block
     DirectoryEntry *dirEntry = (DirectoryEntry *) malloc ( sizeof(DirectoryEntry));
 
@@ -208,7 +197,7 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
 
     ChangeDataBitmapStatus(dataIndex, OCCUPIED);
 
-    strcpy(dirEntry->pathName, arrayOfBreakPathName[i]);
+    strcpy(dirEntry->pathName, arrayOfBreakPathName[index-1]);
     dirEntry->inodePointer = inodeIndex;
 
     char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE);
@@ -246,8 +235,6 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
     char directoryEntryNumberInString[sizeof(int)];
     
     DirectoryEntry directoryEntryTemp;
-    int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
-    int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
     int inodePointerToSectorNumber;
     int i,j;
     
@@ -332,6 +319,34 @@ int StringToInt (char* binaryCharArray)
 }
 
 
+// Search in directory to find leaf inode, return -1 if not found
+int findLeafInodeNumber(char *path, char** array, int index, int *parent, int *current, int step)
+{
+    int i = 0;
+    *current = 0;
+    *parent = 0;
+    for(i = 0; i < index; i++)
+    {
+        *parent = *current;
+        if(searchPathInInode(*parent, array[i], current) != 0)
+        {
+           // printf("SearchPathInInode(%d, %s) --> %d\n", *parent, array[i], *current);
+            break;
+        }
+       // printf("SearchPathInInode(%d, %s) --> %d\n", *parent, array[i], *current);
+    }
+
+
+    if(index - i != step )
+    {
+        printf("Cant find parents of directory you want\n");
+        return -1;
+    }
+
+    return 0;
+}
+
+
 int DirSizeFromInode(int inodeNumber)
 {
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
@@ -340,9 +355,7 @@ int DirSizeFromInode(int inodeNumber)
     char directoryEntryNumberInString[sizeof(int)];
     
     DirectoryEntry directoryEntryTemp;
-    
-    int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
-    int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
+
     int inodePointerToSectorNumber;
     
     int i,j;
@@ -406,8 +419,4 @@ int DirSizeFromInode(int inodeNumber)
     free(inodeSegmentPointerToSector);
     free(sectorBuffer);
     return ((SECTOR_SIZE)/DIRECTORY_LENGTH)*SECTOR_PER_FILE_MAX*DIRECTORY_LENGTH;
-
-    
-    
-    
 }
