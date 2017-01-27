@@ -22,7 +22,7 @@ int BuildRootDirectory()
     Disk_Save("disk1.txt");
     ChangeInodeBitmapStatus(i, OCCUPIED);
 
-    for(i = 0; i < 10000; i++)
+    for(i = 0; i < 10; i++)
     {
         j = FindNextAvailableDataBlock();
         ChangeDataBitmapStatus(j, OCCUPIED);
@@ -38,42 +38,76 @@ int BuildRootDirectory()
     return 0;
 }
 
-
-int BreakPathName( char* pathName , char* arrayOfBreakPathName[])
+int  BreakPathName(char *pathName, char **arrayOfBreakPathName)
 {
-    // check path length
-    if(strlen(pathName)>FULL_PATH_LENGTH_MAX)
+    int index = 0;
+    while (*pathName != '\0')
     {
-        printf("Full Path name is more than legal character\n");
+        index++;
+        // if not the end of pathName
+        while (*pathName == '/')
+            *pathName++ = '\0';
+        if(*pathName)
+            *arrayOfBreakPathName++ = pathName;          // save the argument position
+        while (*pathName != '/' && *pathName != '\0')
+            pathName++;             // skip the argument until
+    }
+    *arrayOfBreakPathName = '\0';                 // mark the end of argument list
+    return index;
+}
+
+
+
+/*
+//retrun -1 if error
+//return -2 if inode is not directory
+int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
+{
+    char* sectorOfInodeBuffer=calloc(sizeof(char),SECTOR_SIZE)
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char
+    
+    DirectoryEntry directoryEntryTemp;
+    int
+    int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
+    int inodeIndexInSector=inodeNumber%INODE_PER_BLOCK_NUM;
+    int i,j;
+    
+    // Read the inode
+    if( Disk_Read(INODE_FIRST_BLOCK_INDEX + sectorOfInodeNumber, sectorOfInodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(sectorOfInodeBuffer);
+        free(inodeBuffer);
+        free(sectorBuffer);
         return -1;
     }
     
-    // define variable
-    int index=0;
-    int i=0;
-    const char* search="/";
-    char* token;
+    //Copy appropriate inode from sector into inodeBuffer
+    memcpy((void*)sectorOfInodeBuffer+INODE_SIZE*inodeIndexInSector,(void*)inodeBuffer,INODE_SIZE);
     
-    char strTemp[strlen(pathName)];
-    strcpy(strTemp,pathName);
-    
-    // divide the strTemp(pathName) into directories
-    token=strtok(strTemp,search);
-    while(token!=NULL){
-        arrayOfBreakPathName[index]=token;
-        token = strtok(NULL, search);
-    }
-    
-    // check value of index. it must be at most 16
-    for (i=0;i<index;i++)
+    // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
+    if (inodeBuffer[0] & FILE_ID)
     {
-        if(strlen(arrayOfBreakPathName[i])>PATH_LENGTH_MAX)
-        {
-            printf("Some Paths length are more than legal\n");
-            return -1;
-        }
+        printf("Inode is not directory, it is file.\n");
+        free(sectorOfInodeBuffer);
+        free(inodeBuffer);
+        free(sectorBuffer);
+        return -2;
     }
     
-    return index;
+    for (i=0;i<SECTOR_PER_FILE_MAX;i++)
+    {
+        
+    }
+
     
+
+
+
+
+
 }
+
+*/

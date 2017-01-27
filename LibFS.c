@@ -2,6 +2,10 @@
 #include "LibDisk.h"
 #include "builder.h"
 #include "parameters.h"
+#include "directory.h"
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 // global errno value here
 int osErrno;
@@ -105,8 +109,23 @@ int File_Unlink(char *file)
 // directory ops
 int Dir_Create(char *path)
 {
-
     printf("Dir_Create %s\n", path);
+
+    // allocate memory for storing string...
+    char* array[64];
+    char myPath[256];
+
+    // make a copy of path to modify
+    strcpy(myPath, path);
+
+    // tokenize path and make array of path elements...
+    int i = BreakPathName(myPath, array);
+
+
+    printf("i = %d\n", i);
+    int k;
+    for(k = 0; k < i; k++)
+        printf("%s\n", array[k]);
     return 0;
 }
 

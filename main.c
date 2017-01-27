@@ -10,15 +10,16 @@ void usage(char *prog)
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2) 
+    if (argc != 2)
     {
-	    usage(argv[0]);
+        usage(argv[0]);
     }
 
     char *path = argv[1];
 
     printf("Starting filesystem\n");
     FS_Boot(path);
+    Dir_Create("/a/b/c/d/e/f/g/h/i/j/k/l/m/n/o/p");
     FS_Sync();
     return 0;
 }

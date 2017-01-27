@@ -27,6 +27,7 @@ int OPEN_FILE_NUM_MAX = 256;    //Maximum number of open files. It is used for d
 int FILE_NUM_MAX = 1000;        //Maximum number of files that a file system can hold
 
 int INODE_BITMAP_BLOCK_NUM = 1;
+int META_DATA_PER_INODE_BYTE_NUM=8;
 int INODE_FIRST_BITMAP_BLOCK_INDEX=1;   //Index of bitmap
 int INODE_BLOCK_NUM = 250;              //Number of inode blocks!!!
 int INODE_BYTEMAP_LENGTH = 250;         //It is 250
