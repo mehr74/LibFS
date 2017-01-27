@@ -90,7 +90,7 @@ int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry)
 
 int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
 {
-
+    
 }
 
 
@@ -99,14 +99,12 @@ int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
 //return -1 if inode is not directory
 int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
 {
-    char* sectorOfInodeBuffer=calloc(sizeof(char),SECTOR_SIZE)
+    char* sectorOfInodeBuffer=calloc(sizeof(char),SECTOR_SIZE);
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
     char* direcoryEntry=calloc(sizeof(char),DIRECTORY_LENGTH);
     char directoryEntryNumberInString[sizeof(int)];
-
-    
     
     DirectoryEntry directoryEntryTemp;
     int sectorOfInodeNumber=inodeNumber/INODE_PER_BLOCK_NUM;
@@ -167,7 +165,7 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
             memcpy(sectorBuffer+j*DIRECTORY_LENGTH,directoryEntryNumberInString,sizeof(int));
             directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
             
-            if(strcmp(directoryEntryTemp.pathName,"\0")==0)
+            if(strcmp(directoryEntryTemp.pathName,"")==0)
             {
                 printf("No directory Find\n");
                 free(sectorOfInodeBuffer);

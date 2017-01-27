@@ -14,8 +14,9 @@ int BuildRootDirectory();
 // return number of its
 int BreakPathName(char* pathName , char **arrayOfBreakPathName);
 int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry);
-int addDirectoryEntry(int inodeNum, DirectoryEntry);
+int addDirectoryEntry(int inodeNum, DirectoryEntry* dirEntry);
 
-//int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber);
+int StringToInt (char* numberInStringType);
+int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber);
 
 #endif // DIRECTORY_H
