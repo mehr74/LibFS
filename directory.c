@@ -648,3 +648,80 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
     return 0;
 
 }
+
+int DataBlocksOccupiedByInode ( int inodeNumber , int* sectorNumbers[])
+{
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char directoryEntryNumberInString[sizeof(int)];
+    
+    DirectoryEntry directoryEntryTemp;
+    int inodePointerToSectorNumber;
+    int counter=0;
+    int i,j;
+    
+    // Read the inode
+    if( ReadInode(inodeNumber, inodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
+    if (inodeBuffer[0] & FILE_ID)
+    {
+        printf("Inode is not directory, it is file.\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    //find appropriate sector and looking for search word
+    for (i=0;i<SECTOR_PER_FILE_MAX;i++)
+    {
+        //find sector number
+        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
+        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+        //read the appropriate sector and write in sectorBuffer
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to read sector block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return -1;
+        }
+        
+        // add this sector numbers and increase counter
+        *sectorNumbers[i]=inodePointerToSectorNumber;
+        counter++;
+        
+        //create directoryEntry
+        //check every entry if it is match with search word
+        for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
+            memcpy(directoryEntryTemp.pathName,sectorBuffer+sizeof(int)+j*DIRECTORY_LENGTH,PATH_LENGTH_MAX);
+            memcpy(directoryEntryNumberInString,sectorBuffer+j*DIRECTORY_LENGTH,sizeof(int));
+            directoryEntryTemp.inodePointer=StringToInt(directoryEntryNumberInString);
+            
+            if(strcmp(directoryEntryTemp.pathName,"")==0)
+            {
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                return counter;
+            }
+        }
+        
+    }
+    
+    free(inodeBuffer);
+    free(inodeSegmentPointerToSector);
+    free(sectorBuffer);
+    return counter;
+}

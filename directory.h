@@ -27,5 +27,7 @@ int DirReadFromInode(int inodeNumber, char* buffer , int size);
 
 int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch );
 
+int DataBlocksOccupiedByInode ( int inodeNumber , int* sectorNumbers[]);
+
 
 #endif // DIRECTORY_H
