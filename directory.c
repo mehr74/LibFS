@@ -115,8 +115,6 @@ int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
     {
         // Try to append dirEntry to data part...
         int dataBlockIndex = inodeBlock[8+i*4];
-        printf("--> addDirectoryEntry (%s, %d) ", dirEntry->pathName, dataBlockIndex);
-        printBlockHex(inodeBlock, 128);
         if(Disk_Read(dataBlockIndex + DATA_FIRST_BLOCK_INDEX , dataBlock) == -1)
         {
             printf("Faild to read data block %d from disk\n", dataBlockIndex);
@@ -179,55 +177,60 @@ int addDirectory(char* pathName, char **arrayOfBreakPathName, int index)
         prevInode = curInode;
         if(searchPathInInode(prevInode, arrayOfBreakPathName[i], &curInode) != 0)
         {
-            printf("searchPathInInode ( %d, %s ) --->  %d", prevInode, arrayOfBreakPathName[i], curInode);
             break;
         }
-        printf("searchPathInInode ( %d, %s ) --->  %d", prevInode, arrayOfBreakPathName[i], curInode);
     }
 
-    printf("now index is : %d\n" , i);
-    printf("prevInode = %d\n", prevInode);
-    printf("curInode = %d\n", curInode);
-    if(index - i == 1)
+    if(index - i != 1)
     {
-
-
-
-        //--------------------------------------------------------------------
-        // allocate inode block and data block
-        DirectoryEntry *dirEntry = (DirectoryEntry *) malloc ( sizeof(DirectoryEntry));
-
-        int inodeIndex = FindNextAvailableInodeBlock();
-        ChangeInodeBitmapStatus(inodeIndex, OCCUPIED);
-
-        int dataIndex = FindNextAvailableDataBlock();
-        ChangeDataBitmapStatus(dataIndex, OCCUPIED);
-
-        strcpy(dirEntry->pathName, arrayOfBreakPathName[i]);
-        dirEntry->inodePointer = inodeIndex;
-
-        char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE);
-        BuildInode(inodeBlock, DIRECTORY_ID);
-
-        InitializeDirectoryInode(inodeBlock, dataIndex);
-
-        char *dataBlock = calloc(sizeof(char), SECTOR_SIZE);
-        InitializeDirectoryFirstDataBlock(dataBlock, prevInode, inodeIndex);
-
-        Disk_Write(dataIndex + DATA_FIRST_BLOCK_INDEX, dataBlock);
-
-        // Write directory inode in disk
-        WriteInodeInSector(inodeIndex, inodeBlock);
-
-        free(inodeBlock);
-        free(dataBlock);
-
-        //---------------------------------------------------------------------
-        // Add entry to parent
-        printf("addDirectoryEntry : (%d, %s)", prevInode, dirEntry->pathName);
-        addDirectoryEntry(prevInode, dirEntry);
-
+        printf("Cant find parents of directory you want\n");
+        return -1;
     }
+        //--------------------------------------------------------------------
+    // allocate inode block and data block
+    DirectoryEntry *dirEntry = (DirectoryEntry *) malloc ( sizeof(DirectoryEntry));
+
+    int inodeIndex = FindNextAvailableInodeBlock();
+    if(inodeIndex < 0)
+    {
+        printf("No availabe inode block.\n");
+        return -1;
+    }
+
+    ChangeInodeBitmapStatus(inodeIndex, OCCUPIED);
+
+    int dataIndex = FindNextAvailableDataBlock();
+    if(dataIndex < 0)
+    {
+        printf("No availabe data block.\n");
+        return -1;
+    }
+
+    ChangeDataBitmapStatus(dataIndex, OCCUPIED);
+
+    strcpy(dirEntry->pathName, arrayOfBreakPathName[i]);
+    dirEntry->inodePointer = inodeIndex;
+
+    char *inodeBlock = calloc(sizeof(char), SECTOR_SIZE);
+    BuildInode(inodeBlock, DIRECTORY_ID);
+
+    InitializeDirectoryInode(inodeBlock, dataIndex);
+
+    char *dataBlock = calloc(sizeof(char), SECTOR_SIZE);
+    InitializeDirectoryFirstDataBlock(dataBlock, prevInode, inodeIndex);
+
+    Disk_Write(dataIndex + DATA_FIRST_BLOCK_INDEX, dataBlock);
+
+    // Write directory inode in disk
+    WriteInodeInSector(inodeIndex, inodeBlock);
+
+    free(inodeBlock);
+    free(dataBlock);
+
+    //---------------------------------------------------------------------
+    // Add entry to parent
+    addDirectoryEntry(prevInode, dirEntry);
+
     return 0;
 }
 
@@ -299,7 +302,6 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
             
             if(strcmp(directoryEntryTemp.pathName,"")==0)
             {
-                printf("No directory Find\n");
                 free(inodeBuffer);
                 free(inodeSegmentPointerToSector);
                 free(sectorBuffer);
@@ -309,7 +311,6 @@ int searchPathInInode ( int inodeNumber , char* search , int* outputInodeNumber)
             
             if(strcmp(search, directoryEntryTemp.pathName)==0)
             {
-                printf("i=%d,j=%d\n",i,j);
                 *outputInodeNumber=directoryEntryTemp.inodePointer;
                 free(inodeBuffer);
                 free(inodeSegmentPointerToSector);
