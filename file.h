@@ -18,4 +18,6 @@ int initializeFileTableEntryByInode(int inodeNum, FileTableEntry *fileTableEntry
 int getAvailabeFileDescriptor();
 int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry);
 
+int SizeOfFile(int inodeNumber);
+int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers);
 #endif // FILE_H

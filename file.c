@@ -108,3 +108,125 @@ int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry)
     }
     return -1;
 }
+
+int SizeOfFile(int inodeNumber)
+{
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    char* sizeBuffer=calloc(sizeof(char),sizeof(int));
+    
+    int inodePointerToSectorNumber;
+    int fileSize;
+    
+    // Read the inode
+    if( ReadInode(inodeNumber, inodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        free(sizeBuffer);
+        return -1;
+    }
+    
+    // Check that inode is File  FILE_ID=0x80 , DIRECORY_ID=0x00
+    if (!(inodeBuffer[0] & FILE_ID))
+    {
+        printf("Inode is not directory, it is file.\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        free(sizeBuffer);
+        return -1;
+    }
+    
+    //find appropriate sector which shows the size
+    memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM,sizeof(int));
+    inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+    //read the appropriate sector and write in sectorBuffer
+    if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+    {
+        printf("Disk failed to read sector block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        free(sizeBuffer);
+
+        return -1;
+    }
+    
+    //find size and convert it into int
+    memcpy((void*)sizeBuffer,(void*)sectorBuffer,sizeof(int));
+    fileSize=StringToInt(sizeBuffer);
+    
+    free(inodeBuffer);
+    free(inodeSegmentPointerToSector);
+    free(sectorBuffer);
+    free(sizeBuffer);
+
+    return fileSize;
+}
+
+int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers)
+{
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    
+    int inodePointerToSectorNumber;
+    int i;
+    
+    
+    int entryOccupiedNumber;
+    int fileSize=0;
+    
+    // Find size of file
+    fileSize=SizeOfFile(inodeNumber);
+    if(fileSize == -1)
+    {
+        return -1;
+    }
+    
+    // Number of occupied entry by file
+    entryOccupiedNumber=min(SECTOR_PER_FILE_MAX,(fileSize+sizeof(int)-1)/SECTOR_SIZE+1);
+    
+    // Read the inode
+    if( ReadInode(inodeNumber, inodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    //find appropriate sector and looking for search word
+    for (i=0;i<entryOccupiedNumber;i++)
+    {
+        //find sector number
+        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
+        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+        //read the appropriate sector and write in sectorBuffer
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to read sector block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return -1;
+        }
+        
+        // add this sector numbers and increase counter
+        sectorNumbers[i]=inodePointerToSectorNumber;
+        
+    }
+    
+    free(inodeBuffer);
+    free(inodeSegmentPointerToSector);
+    free(sectorBuffer);
+    return entryOccupiedNumber;
+    
+}

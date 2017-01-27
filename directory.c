@@ -427,7 +427,7 @@ int DirReadFromInode(int inodeNumber, char* buffer , int size)
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
     
     
-    int sectorNumber=size/(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH))+1;
+    int sectorNumber=(size-1)/(DIRECTORY_LENGTH*(SECTOR_SIZE/DIRECTORY_LENGTH))+1;
     int entryNumber=(size/DIRECTORY_LENGTH)%(SECTOR_SIZE/DIRECTORY_LENGTH);
     int inodePointerToSectorNumber;
 
