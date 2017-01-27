@@ -23,5 +23,6 @@ int findLeafInodeNumber(char *path, char** array, int index, int *parent, int *c
 
 int DirSizeFromInode(int inodeNumber);
 
+int DirReadFromInode(int inodeNumber, char* buffer , int size);
 
 #endif // DIRECTORY_H
