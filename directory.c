@@ -15,21 +15,31 @@ int BuildRootDirectory()
     rootInode = calloc(sizeof(char), SECTOR_SIZE);
     BuildInode(rootInode, DIRECTORY_ID);
 
+    Disk_Save("disk3.txt");
+
     // get one availabe inode block
     // since all inode are no availabe i must be 0
     int i = FindNextAvailableInodeBlock();
-    int j;
-    Disk_Save("disk1.txt");
     ChangeInodeBitmapStatus(i, OCCUPIED);
 
-    for(i = 0; i < 10; i++)
-    {
-        j = FindNextAvailableDataBlock();
-        ChangeDataBitmapStatus(j, OCCUPIED);
-        printf("%d\n", j);
-    }
-    Disk_Save("disk3.txt");
+    // get one availabe data block
+    int j = FindNextAvailableDataBlock();
     ChangeDataBitmapStatus(j, OCCUPIED);
+
+    InitializeDirectoryInode(rootInode, j);
+
+    char *dataBlock;
+    dataBlock = calloc(sizeof(char), SECTOR_SIZE);
+
+
+    InitializeDirectoryFirstDataBlock(dataBlock, i, i);
+
+    if(Disk_Write(DATA_FIRST_BLOCK_INDEX + j, dataBlock) == -1)
+    {
+        // Disk couldn't write dataBlock
+        printf("Disk Failed to write datablock\n");
+        return -1;
+    }
 
     // Write root directory data in disk
     WriteInodeInSector(i, rootInode);
@@ -56,6 +66,19 @@ int  BreakPathName(char *pathName, char **arrayOfBreakPathName)
     return index;
 }
 
+int addDirectoryEntry(char* dataBlock, DirectoryEntry *dirEntry)
+{
+    int i;
+    for(i = 4; i < SECTOR_SIZE; i+=20)
+    {
+        if(dataBlock[i] == '\0')
+            break;
+    }
+    strcpy(&dataBlock[i], dirEntry->pathName);
+    dataBlock[i-4] = dirEntry->inodePointer;
+
+    return 0;
+}
 
 
 /*

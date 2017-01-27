@@ -34,6 +34,7 @@ int INODE_BYTEMAP_LENGTH = 250;         //It is 250
 int INODE_FIRST_BLOCK_INDEX = 5;        //This shows the index of first block which inodes are stored in it
 int INODE_PER_BLOCK_NUM = 4;            //Number of inode per block!!!
 int INODE_SIZE = 128;                   //Size of each inode in a block
+int INODE_FIRST_SECTOR_POINTER_INDEX = 8; // index of sector pointer in an inode
 
 int DATA_BITMAP_BLOCK_NUM = 3;
 int DATA_FIRST_BITMAP_BLOCK_INDEX=2;    // Index of bitmap

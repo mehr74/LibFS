@@ -2,9 +2,11 @@
 #include "LibDisk.h"
 #include "LibFS.h"
 #include "inode.h"
+#include "builder.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 
 // return the # of sector which is available
 // return -1 means there is an error
@@ -249,9 +251,10 @@ int WriteInodeInSector ( int inodeNumber , char* inodeData){
         return -1;
     }
     
+    printf("inode of sector index : %d\n", inodeOfSectorIndex);
     // Change the data of inoded
-    memcpy((void*)inodeData,(void*)sectorBuffer+INODE_SIZE*inodeOfSectorIndex,INODE_SIZE);
-    
+    memcpy((char*)sectorBuffer+INODE_SIZE*inodeOfSectorIndex, (char*)inodeData, INODE_SIZE);
+
     // Write changes to disk ...
     if( Disk_Write(INODE_FIRST_BLOCK_INDEX + sectorNumber, sectorBuffer) == -1)
     {
@@ -263,6 +266,14 @@ int WriteInodeInSector ( int inodeNumber , char* inodeData){
     free(sectorBuffer);
     return 0;
 }
+
+int isDirectoryInode (char *inode)
+{
+    if(inode[0] == DIRECTORY_ID)
+        return 0;
+    return -1;
+}
+
 
 
 
