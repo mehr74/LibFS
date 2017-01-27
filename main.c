@@ -21,7 +21,9 @@ int main(int argc, char *argv[])
     printf("Starting filesystem\n");
     FS_Boot(path);
     Dir_Create("/alireza");
-    Dir_Create("/gholi");
+    Dir_Create("/alireza/lotfi");
+    Dir_Create("/alireza/lotfi/sholi");
+    Dir_Create("/alireza/lotfi/sholi/test");
     FS_Sync();
     
     int output=0;

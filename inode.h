@@ -18,6 +18,8 @@ int ConvertBytemapToBitmap(char* bitmap, char* bytemap);
 // inodeData must be 128 Byte
 int WriteInodeInSector ( int inodeNumber , char* inodeData);
 
+int ReadInode(int inodeNumber, char* inodeData);
+
 int isDirectoryInode (char *inode);
 
 
