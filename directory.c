@@ -516,8 +516,6 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
         free(firstEntryOfNextSectorBuffer);
         return -1;
     }
-    printf("inodeNum : %d\n", inodeNumber);
-    printBlockHex(inodeBuffer, 128);
     
     // Check that inode is Directory  FILE_ID=0x80 , DIRECORY_ID=0x00
     if (inodeBuffer[0] & FILE_ID)
@@ -646,8 +644,7 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
     free(inodeSegmentPointerToNextSector);
     free(nextSectorBuffer);
     free(firstEntryOfNextSectorBuffer);
-    
-    printf("finish\n");
+
     return 0;
 
 }
