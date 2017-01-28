@@ -1,7 +1,7 @@
 # LibFS API Application
 In this project we created a user-level library, libFS, which handles an adequate portion of a file system. We had incorporated our file system into a library that applications can link with to access files and directories. Our library in turn hooks with LibDisk, a library that just mocks behaviors of a "disk".
 
-## Generic File System API
+## 1. Generic File System API
 
 **int FS_Boot(char *path)**
 
@@ -22,7 +22,7 @@ in the file system. We can store the disk image file anywhere.
 
 ---
 
-## File Access API
+## 2. File Access API
 
 **int File_Create(char *file)**
 
@@ -75,3 +75,86 @@ current location plus size.
 * If write cannot complete (due to a lack of space), return -1 and set *osErrno* to *E_NO_SPACE*. 
 * If the file exceeds the maximum file size, return -1 and set *osErrno* to 
 *E_FILE_TOO_BIG*
+
+---
+
+**int File_Close(int fd)**
+
+*File_Close()* closes the file referred to by file descriptor *fd*. 
+
+* If the file is not currently open, return -1 and set osErrno to *E_BAD_FD*
+* Upon success, return 0.
+
+---
+
+**int File_Unlink(char *file)**
+
+This should delete the file referenced by file, including removing its name
+from the directory it is in, and freeing up any data blocks and inodes that 
+the file was using.
+* If the file is currently open, return -1 and set *osErrno* to *E_FILE_IN_USE*
+ (and do NOT delete the file).
+* Upon success, return 0.
+
+---
+
+**int File_Seek(int fd, int offset)**
+
+*File_Seek()* should update the current location of the file pointer. The 
+location is given as an offset from the beginning of the file.
+
+* If offset is larger than the size of the file or negative, return -1 and 
+set *osErrno* to *E_SEEK_OUT_OF_BOUNDS*.
+* If the file is not currently open, return -1 and set osErrno to 
+*E_BAD_FD*.
+* Upon success, return the new location of the file pointer.
+
+## 3. Folder Access API
+
+**int Dir_Create(char *path)**
+
+*Dir_Create()* creates a new directory as named by path. To do so, we first 
+allocate a new file (of type directory), and then add a new directory entry
+in the current directory's parent.
+
+* Upon failure of any sort, return -1 and set *osErrno* to *E_CREATE*
+* Upon success, return 0.
+* *Dir_Create()* is not recursive (that is, if only "/" exists, and we
+want to create a directory "/a/b", we must first create "/a", and then
+create "/a/b").
+
+---
+
+**int Dir_Size(char *path)**
+
+*Dir_Size()* returns the number of bytes in the directory referred to by path.
+This routine should be used to find the size of the directory before calling
+*Dir_Read()* to find the contents of the directory.
+
+---
+
+**int Dir_Read(char *path, void *buffer, int size)**
+
+*Dir_Read()* can be used to read the contents of a directory. It should return
+in the buffer a set of directory entries. Each entry is of size 20 bytes, and 
+contains 16-byte names of the directories and files within the directory name
+by path, followed by the 4-byte integer inode number.
+
+* If size is not big enough to contain all of the entries, return -1 and set 
+*osErrno* to *E_BUFFER_TOO_SMALL*
+* Return the number of directory entries that are in the directory (e.g., 2 
+if there are two entries in the directory).
+
+---
+
+**int Dir_Unlink(char *path)**
+
+*Dir_Unlink()* removes a directory referred to by path, freeing up its inode
+and data blocks, and removing its entry from the parent directory. 
+
+* Upon success, return 0
+* Dir_Unlink() should only be successful if there are no files within the 
+directory. If there are still files within the directory, return -1 and set 
+*osErrno* to *E_DIR_NO_EMPTY*.
+* If someone tries to remove the root directory("/"), don't allow them to do 
+it! Return -1 and set *osErrno* to *E_ROOT_DIR*.
