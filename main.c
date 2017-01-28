@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     FS_Boot(path);
     int i = 0;
     char buffer[256];
-    for(i = 0; i < 256; i++)
+    for(i = 0; i < 2; i++)
     {
         sprintf(buffer, "tst%d.txt", i);
         File_Create(buffer);
