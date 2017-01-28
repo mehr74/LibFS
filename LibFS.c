@@ -128,7 +128,7 @@ int File_Read(int fd, void *buffer, int size)
     printf("FS_Read\n");
     
     // Check file is open or not
-    if ( isFileOpen(id)==-1)
+    if ( isFileOpen(fd)==-1)
     {
         osErrno=E_BAD_FD;
         printf("File is not open\n");
