@@ -572,7 +572,7 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
         
         // save first entry of next sector buffer
         memcpy(firstEntryOfNextSectorBuffer,nextSectorBuffer,DIRECTORY_LENGTH);
-        
+
         //create directoryEntry
         //check every entry if it is match with search word
         for (j=0; j<(SECTOR_SIZE)/DIRECTORY_LENGTH; j++) {
@@ -649,7 +649,7 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
 
 }
 
-int DataBlocksOccupiedByInode ( int inodeNumber , int* sectorNumbers[])
+int DataBlocksOccupiedByInode ( int inodeNumber , int* sectorNumbers)
 {
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
@@ -699,7 +699,7 @@ int DataBlocksOccupiedByInode ( int inodeNumber , int* sectorNumbers[])
         }
         
         // add this sector numbers and increase counter
-        *sectorNumbers[i]=inodePointerToSectorNumber;
+        sectorNumbers[i]=inodePointerToSectorNumber;
         counter++;
         
         //create directoryEntry
