@@ -70,6 +70,14 @@ int addFile(int parentInode, char* fileName)
     return 0;
 }
 
+int CreateFileTable()
+{
+    fileTable = (FileTableEntry *) calloc(OPEN_FILE_NUM_MAX, sizeof(FileTableEntry));
+    if(fileTable == NULL)
+        return -1;
+    return 0;
+}
+
 int initializeFileTableEntryByInode(int inodeNum, FileTableEntry *fileTableEntry)
 {
     char* inodeBlock = calloc(sizeof(char), INODE_SIZE);
