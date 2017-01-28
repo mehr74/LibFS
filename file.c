@@ -88,6 +88,20 @@ int getAvailabeFileDescriptor()
     return -1;
 }
 
+int getInodePointerOfFileEntry(int fd)
+{
+    if(fd < 0 || fd > OPEN_FILE_NUM_MAX)
+        return -1;
+    return fileTable[fd];
+}
+
+int updateFilePointerOfFileEntry(int fd, int filePointer)
+{
+    if(fd < 0 || fd > OPEN_FILE_NUM_MAX)
+        return -1;
+    filePointer[fd] = filePointer;
+}
+
 int SizeOfFile(int inodeNumber)
 {
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
@@ -235,7 +249,7 @@ int openFileDescriptor(char *path)
     strcpy(fileTable[fd].fileName, array[i-1]);
     strcpy(fileTable[fd].filePath, path);
 
-    return 0;
+    return fd;
 }
 
 int isFileOpen(int fd)
@@ -245,6 +259,14 @@ int isFileOpen(int fd)
     if(fileTable[fd].isValid == VALID)
         return 0;
     return -1;
+}
+
+int removeFileTableEntry(int fd)
+{
+    if(fd , 0 || fd > OPEN_FILE_NUM_MAX)
+        return -1;
+    fileTable[fd].isValid = NOT_VALID;
+    return 0;
 }
 
 int FileRead(int fd, char *buffer, int size){

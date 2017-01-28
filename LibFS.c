@@ -116,10 +116,11 @@ int File_Create(char *file)
 int File_Open(char *file)
 {
     printf("FS_Open : %s\n", file);
-    if(openFileDescriptor(file) != 0)
+    int fd = openFileDescriptor(file);
+    if(fd != 0)
         return -1;
     printFileTable();
-    return 0;
+    return fd;
 }
 
 int File_Read(int fd, void *buffer, int size)
@@ -154,12 +155,30 @@ int File_Write(int fd, void *buffer, int size)
 int File_Seek(int fd, int offset)
 {
     printf("FS_Seek\n");
+    if(offset > SizeOfFile(getInodePointerOfFileEntry(fd)))
+    {
+        E_SEEK_OUT_OF_BOUNDS = -1;
+        return -1;
+    }
+    if(isFileOpen(fd))
+    {
+        osErrno = E_BAD_FD;
+        return -1;
+    }
+    updateFilePointer(fd, offset);
     return 0;
 }
 
 int File_Close(int fd)
 {
     printf("FS_Close\n");
+    if(isFileOpen(fd))
+    {
+        osErrno = E_BAD_FD;
+        return -1;
+    }
+    if(removeFileTableEntry(fd) != 0)
+        return -1;
     return 0;
 }
 
