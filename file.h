@@ -16,8 +16,7 @@ typedef struct FileTableEntry
 int addFile(int parentInode, char* fileName);
 int CreateFileTable();
 
-int initializeFileTableEntryByInode(int inodeNum, FileTableEntry *fileTableEntry);
+
 int getAvailabeFileDescriptor();
-int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry);
 
 #endif // FILE_H

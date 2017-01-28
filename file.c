@@ -78,17 +78,6 @@ int CreateFileTable()
     return 0;
 }
 
-int initializeFileTableEntryByInode(int inodeNum, FileTableEntry *fileTableEntry)
-{
-    char* inodeBlock = calloc(sizeof(char), INODE_SIZE);
-    if(ReadInode(inodeNum, inodeBlock) == -1)
-        return -1;
-
-    fileTableEntry->inodePointer = inodeNum;
-    fileTableEntry->filePointer = 0;
-    fileTableEntry->fileDescriptor = getAvailabeFileDescriptor();
-}
-
 int getAvailabeFileDescriptor()
 {
     int i;
@@ -96,23 +85,9 @@ int getAvailabeFileDescriptor()
         return -1;
     for(i = 0; i < OPEN_FILE_NUM_MAX; i++)
     {
-        FileTableEntry* fileTableEntry;
-        if(getFileTableEntry(i, fileTableEntry) == -1)
+        if(fileTable[i].isValid == NOT_VALID)
             return i;
     }
     return -1;
 }
 
-int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry)
-{
-    int i = 0;
-    for(i = 0; i < numberOfOpenFiles; i++)
-    {
-        if(fileTable[i].fileDescriptor == fileDescriptor)
-        {
-            fileTableEntry = &fileTable[i];
-            return 0;
-        }
-    }
-    return -1;
-}
