@@ -70,7 +70,7 @@ int  BreakPathName(char *pathName, char **arrayOfBreakPathName)
 int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry)
 {
     int i;
-    for(i = 0; i < SECTOR_SIZE/DIRECTORY_LENGTH; i++)
+    for(i = 0; i < (SECTOR_SIZE/DIRECTORY_LENGTH) ; i++)
     {
         if(dataBlock[i*DIRECTORY_LENGTH + 4] == '\0')
             break;
@@ -80,6 +80,7 @@ int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry)
         return -1;
     strcpy(&dataBlock[i*DIRECTORY_LENGTH + 4], dirEntry->pathName);
     dataBlock[i*DIRECTORY_LENGTH] = dirEntry->inodePointer;
+
 
     if((i+1)*DIRECTORY_LENGTH + 19 > SECTOR_SIZE)
     {
@@ -131,38 +132,40 @@ int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
             Disk_Write(dataBlockIndex + DATA_FIRST_BLOCK_INDEX, dataBlock);
             free(dataBlock);
             free(inodeBlock);
-            return 0;
-        }
-        else if(res == -1)  // There is no space to add terminator
             break;
+        }
+        else if(res == -2)  // There is no space to add terminator
+        {
+            // allocate a new free data block to inode
+            int k = FindNextAvailableDataBlock();
+            ChangeDataBitmapStatus(k, OCCUPIED);
+
+            // check if there is space in directory to store more files
+            if(i == SECTOR_SIZE)
+            {
+                printf("No space to add more directory or file to directory #%d\n", inodeNum);
+                free(dataBlock);
+                free(inodeBlock);
+                return -1;
+            }
+
+            if(Disk_Read(k + DATA_FIRST_BLOCK_INDEX, dataBlock) == -1)
+            {
+                printf("Faild to read data block %d from disk\n", k);
+                free(dataBlock);
+                free(inodeBlock);
+                return -1;
+            }
+
+            addDirectoryEntryOnSector(dataBlock, dirEntry);
+            Disk_Write(k, dataBlock);
+
+            free(dataBlock);
+            free(inodeBlock);
+            break;
+        }
     }
 
-    // check if there is space in directory to store more files
-    if(i == SECTOR_SIZE)
-    {
-        printf("No space to add more directory or file to directory #%d\n", inodeNum);
-        free(dataBlock);
-        free(inodeBlock);
-        return -1;
-    }
-
-    // allocate a new free data block to inode
-    int k = FindNextAvailableDataBlock();
-    ChangeDataBitmapStatus(k, OCCUPIED);
-
-    if(Disk_Read(k + DATA_FIRST_BLOCK_INDEX, dataBlock) == -1)
-    {
-        printf("Faild to read data block %d from disk\n", k);
-        free(dataBlock);
-        free(inodeBlock);
-        return -1;
-    }
-
-    addDirectoryEntryOnSector(dataBlock, dirEntry);
-    Disk_Write(k, dataBlock);
-
-    free(dataBlock);
-    free(inodeBlock);
     return 0;
     
 }

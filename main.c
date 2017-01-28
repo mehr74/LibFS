@@ -4,6 +4,7 @@
 
 
 int testA();
+int testB();
 
 void usage(char *prog)
 {
@@ -19,11 +20,12 @@ int main(int argc, char *argv[])
     }
 
     FS_Boot(argv[1]);
-    testA();
+    testB();
     FS_Sync();
     return 0;
 }
 
+// failed
 int testA()
 {
     printf("Testing File");
@@ -33,6 +35,20 @@ int testA()
     char buffer[24];
     strcpy(buffer, "This is a test string");
     File_Write(fd, buffer, 22);
+    return 0;
+}
+
+// lots of files
+int testB()
+{
+    printf("Testing File");
+    char buffer[256];
+    int i;
+    for(i = 0; i < 25; i++)
+    {
+        sprintf(buffer, "/file%d.txt", i);
+        File_Create(buffer);
+    }
     return 0;
 }
 
