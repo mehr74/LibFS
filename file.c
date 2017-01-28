@@ -102,7 +102,7 @@ int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry)
     {
         if(fileTable[i].fileDescriptor == fileDescriptor)
         {
-            fileTableEntry = fileTable[i];
+            fileTableEntry = &fileTable[i];
             return 0;
         }
     }

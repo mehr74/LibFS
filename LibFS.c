@@ -3,6 +3,7 @@
 #include "builder.h"
 #include "parameters.h"
 #include "directory.h"
+#include "inode.h"
 #include "file.h"
 #include <string.h>
 #include <stdlib.h>
@@ -218,6 +219,7 @@ int Dir_Read(char *path, void *buffer, int size)
 int Dir_Unlink(char *path)
 {
     printf("Dir_Unlink\n");
+    Disk_Save("disk1.txt");
 
     // allocate memory for storing string...
     char* array[128];
@@ -235,11 +237,22 @@ int Dir_Unlink(char *path)
     if(findLeafInodeNumber(myPath, array, i, &parent, &current, 0) != 0)
         return -1;
 
-
     printf("DeleteEntryFromDirectory( %d, %d ) ", parent, current);
     DeleteEntryFromDirectory(parent, current);
 
+
+    int DataBlocksOccupied[30];
+    int j = DataBlocksOccupiedByInode(current, DataBlocksOccupied);
+
+    for (i = 0; i < j; i++)
+    {
+        ChangeDataBitmapStatus(DataBlocksOccupied[i], AVAILIBLE);
+    }
+
+    ChangeInodeBitmapStatus(current, AVAILIBLE);
+
     Disk_Save("disk2.txt");
+
     return 0;
 }
 
