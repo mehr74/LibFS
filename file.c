@@ -320,15 +320,18 @@ int FileRead(int fd, char *buffer, int size){
         }
         
         //transfering data
-        if (i==0)
+        if (i==0 && fileTable[fd].filePointer<(SECTOR_SIZE-sizeof(int)))
         {
-            memcpy(buffer+transferedSize,sectorBuffer+sizeof(int),min(SECTOR_SIZE-sizeof(int),readSize));
+            memcpy(buffer+transferedSize,sectorBuffer+sizeof(int)+fileTable[fd].filePointer,min(SECTOR_SIZE-sizeof(int),readSize));
             transferedSize=transferedSize + min(SECTOR_SIZE-sizeof(int),readSize);
+            fileTable[fd].filePointer=fileTable[fd].filePointer+min(SECTOR_SIZE-sizeof(int),readSize);
         }
-        else
+        else if (i==((fileTable[fd].filePointer+sizeof(int))/SECTOR_SIZE))
         {
-            memcpy(buffer+transferedSize,sectorBuffer,min(SECTOR_SIZE,readSize-transferedSize));
+            memcpy(buffer+transferedSize,sectorBuffer+((fileTable[fd].filePointer+sizeof(int))%SECTOR_SIZE),
+                   min(SECTOR_SIZE,readSize-transferedSize));
             transferedSize=transferedSize+min(SECTOR_SIZE,readSize-transferedSize);
+            fileTable[fd].filePointer=fileTable[fd].filePointer+min(SECTOR_SIZE,readSize-transferedSize);
         }
         
         if(transferedSize==readSize)
@@ -359,8 +362,7 @@ int FileRead(int fd, char *buffer, int size){
 
 
 //return -1 for errors
-//return -2 if size is not appropriate
-int WriteFile(int fd, char* buffer , int size)
+int FileWrite(int fd, char* buffer , int size)
 {
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
@@ -368,21 +370,20 @@ int WriteFile(int fd, char* buffer , int size)
     
     // determine how many bytes we must read
     int transferedSize=0;
+    int newSizeOfFile;
     
     int inodePointerToSectorNumber;
     int i;
     
-    // Number of occupied entry by file
-    int entryOccupiedNumber=min(SECTOR_PER_FILE_MAX,(fileTable[fd].sizeOfFile+sizeof(int)-1)/SECTOR_SIZE+1);
-    
-    // Check size of file. it must be lower than tranfering size
-    if(fileTable[fd].sizeOfFile-fileTable[fd].filePointer < size)
+    //determine new size of file
+    newSizeOfFile=max(fileTable[fd].sizeOfFile,fileTable[fd].filePointer+size);
+    if(newSizeOfFile>SECTOR_PER_FILE_MAX*SECTOR_SIZE-sizeof(int))
     {
-        printf("There is not enough size to write file\n");
+        printf("There is not enough space to write\n");
         free(inodeBuffer);
         free(inodeSegmentPointerToSector);
         free(sectorBuffer);
-        return -2;
+        return -1;
     }
     
     // Read the inode
@@ -396,7 +397,7 @@ int WriteFile(int fd, char* buffer , int size)
     }
     
     //find appropriate sectors and reading from them and save into buffer
-    for (i=0;i<entryOccupiedNumber;i++)
+    for (i=0;i<SECTOR_PER_FILE_MAX;i++)
     {
         //find sector number
         memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
@@ -413,23 +414,17 @@ int WriteFile(int fd, char* buffer , int size)
         }
         
         //transfering data
-        if (i==0)
+        if (i==0 && fileTable[fd].filePointer<(SECTOR_SIZE-sizeof(int)))
         {
-            memcpy(sectorBuffer+sizeof(int),buffer+transferedSize,min(SECTOR_SIZE-sizeof(int),size));
+            memcpy(sectorBuffer+sizeof(int)+fileTable[fd].filePointer,buffer+transferedSize,min(SECTOR_SIZE-sizeof(int),size));
             transferedSize=transferedSize + min(SECTOR_SIZE-sizeof(int),size);
+            fileTable[fd].filePointer=fileTable[fd].filePointer+min(SECTOR_SIZE-sizeof(int),size);
         }
-        else
+        else if (i==((fileTable[fd].filePointer+sizeof(int))/SECTOR_SIZE))
         {
-            memcpy(sectorBuffer,buffer+transferedSize,min(SECTOR_SIZE,size-transferedSize));
+            memcpy(sectorBuffer+((fileTable[fd].filePointer+sizeof(int))%SECTOR_SIZE),buffer+transferedSize,min(SECTOR_SIZE,size-transferedSize));
             transferedSize=transferedSize+min(SECTOR_SIZE,size-transferedSize);
-        }
-        
-        if(transferedSize==size)
-        {
-            free(inodeBuffer);
-            free(inodeSegmentPointerToSector);
-            free(sectorBuffer);
-            return transferedSize;
+            fileTable[fd].filePointer=fileTable[fd].filePointer+min(SECTOR_SIZE,size-transferedSize);
         }
         
         if(transferedSize>size)
@@ -445,10 +440,20 @@ int WriteFile(int fd, char* buffer , int size)
         if( Disk_Write(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
         {
             printf("Disk failed to write changed block\n");
+            osErrno=E_NO_SPACE;
             free(inodeBuffer);
             free(inodeSegmentPointerToSector);
             free(sectorBuffer);
             return -1;
+        }
+        
+        if(transferedSize==size)
+        {
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            fileTable[fd].sizeOfFile = newSizeOfFile;
+            return transferedSize;
         }
         
     }
@@ -456,6 +461,7 @@ int WriteFile(int fd, char* buffer , int size)
     free(inodeBuffer);
     free(inodeSegmentPointerToSector);
     free(sectorBuffer);
+    fileTable[fd].sizeOfFile = newSizeOfFile;
     return transferedSize;
 }
 

@@ -5,6 +5,10 @@
     #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
 
+#ifndef max
+#define max(a,b) ((a) > (b) ? (a) : (b))
+#endif
+
 extern char MAGIC_NUMBER_0;    //This one and three below are some magic number that stored in super block to distinguish it from other disks
 extern char MAGIC_NUMBER_1;
 extern char MAGIC_NUMBER_2;

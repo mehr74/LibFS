@@ -148,8 +148,20 @@ int File_Write(int fd, void *buffer, int size)
 {
     printf("FS_Write\n");
     
-    //
-    return 0;
+    // Check file is open or not
+    if ( isFileOpen(fd)==-1)
+    {
+        osErrno=E_BAD_FD;
+        printf("File is not open\n");
+        return -1;
+    }
+    int newSizeOfFile=FileWrite( fd, buffer, size);
+    if(newSizeOfFile==-1)
+    {
+        printf("Error happen while Writing\n");
+        return -1;
+    }
+    return newSizeOfFile;
 }
 
 int File_Seek(int fd, int offset)

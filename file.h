@@ -30,7 +30,7 @@ int getInodePointerOfFileEntry(int fd);
 int updateFilePointerOfFileEntry(int fd, int filePointer);
 
 int FileRead(int fd, char *buffer, int size);
-int WriteFile(int fd, char* buffer , int size);
+int FileWrite(int fd, char* buffer , int size);
 
 void printFileTableEntry(int fd);
 void printFileTable();
