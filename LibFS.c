@@ -198,6 +198,11 @@ int Dir_Read(char *path, void *buffer, int size)
     char* array[128];
     char myPath[256];
 
+    if(size < Dir_Size(path))
+    {
+        osErrno = E_BUFFER_TOO_SMALL;
+        return -1;
+    }
     // make a copy of path to modify
     strcpy(myPath, path);
 
@@ -219,7 +224,6 @@ int Dir_Read(char *path, void *buffer, int size)
 int Dir_Unlink(char *path)
 {
     printf("Dir_Unlink\n");
-    Disk_Save("disk1.txt");
 
     // allocate memory for storing string...
     char* array[128];
@@ -250,8 +254,6 @@ int Dir_Unlink(char *path)
     }
 
     ChangeInodeBitmapStatus(current, AVAILIBLE);
-
-    Disk_Save("disk2.txt");
 
     return 0;
 }
