@@ -21,4 +21,6 @@ int getAvailabeFileDescriptor();
 
 int SizeOfFile(int inodeNumber);
 int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers);
+
+int FileRead(int fd, char *buffer, int size);
 #endif // FILE_H
