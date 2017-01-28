@@ -603,6 +603,13 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
                 if( Disk_Write(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
                 {
                     printf("Disk failed to write changed block\n");
+                    free(inodeBuffer);
+                    free(inodeSegmentPointerToSector);
+                    free(sectorBuffer);
+                    free(inodeSegmentPointerToNextSector);
+                    free(nextSectorBuffer);
+                    free(firstEntryOfNextSectorBuffer);
+                    return -1;
                 }
                 free(inodeBuffer);
                 free(inodeSegmentPointerToSector);
@@ -634,6 +641,13 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch )
         if( Disk_Write(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
         {
             printf("Disk failed to write changed block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            free(inodeSegmentPointerToNextSector);
+            free(nextSectorBuffer);
+            free(firstEntryOfNextSectorBuffer);
+            return -1;
         }
         
     }

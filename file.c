@@ -220,21 +220,18 @@ int FileRead(int fd, char *buffer, int size){
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
     
-    //get the FileTableEntry of appropriate file
-    FileTableEntry fileProperties=fileTable[fd];
-    
     // determine how many bytes we must read
-    int readSize=min(fileProperties.sizeOfFile-fileProperties.filePointer,size);
+    int readSize=min(fileTable[fd].sizeOfFile-fileTable[fd].filePointer,size);
     int transferedSize=0;
     
     int inodePointerToSectorNumber;
     int i;
     
     // Number of occupied entry by file
-    int entryOccupiedNumber=min(SECTOR_PER_FILE_MAX,(fileProperties.sizeOfFile+sizeof(int)-1)/SECTOR_SIZE+1);
+    int entryOccupiedNumber=min(SECTOR_PER_FILE_MAX,(fileTable[fd].sizeOfFile+sizeof(int)-1)/SECTOR_SIZE+1);
     
     // Read the inode
-    if( ReadInode(fileProperties.inodePointer, inodeBuffer) == -1)
+    if( ReadInode(fileTable[fd].inodePointer, inodeBuffer) == -1)
     {
         printf("Disk failed to read inode block\n");
         free(inodeBuffer);
@@ -286,7 +283,7 @@ int FileRead(int fd, char *buffer, int size){
             free(inodeBuffer);
             free(inodeSegmentPointerToSector);
             free(sectorBuffer);
-            return transferedSize;
+            return -1;
         }
         
     }
@@ -296,4 +293,106 @@ int FileRead(int fd, char *buffer, int size){
     free(sectorBuffer);
     return transferedSize;
     
+}
+
+
+//return -1 for errors
+//return -2 if size is not appropriate
+int WriteFile(int fd, char* buffer , int size)
+{
+    char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
+    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
+    char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
+    
+    // determine how many bytes we must read
+    int transferedSize=0;
+    
+    int inodePointerToSectorNumber;
+    int i;
+    
+    // Number of occupied entry by file
+    int entryOccupiedNumber=min(SECTOR_PER_FILE_MAX,(fileTable[fd].sizeOfFile+sizeof(int)-1)/SECTOR_SIZE+1);
+    
+    // Check size of file. it must be lower than tranfering size
+    if(fileTable[fd].sizeOfFile-fileTable[fd].filePointer < size)
+    {
+        printf("There is not enough size to write file\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -2;
+    }
+    
+    // Read the inode
+    if( ReadInode(fileTable[fd].inodePointer, inodeBuffer) == -1)
+    {
+        printf("Disk failed to read inode block\n");
+        free(inodeBuffer);
+        free(inodeSegmentPointerToSector);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    //find appropriate sectors and reading from them and save into buffer
+    for (i=0;i<entryOccupiedNumber;i++)
+    {
+        //find sector number
+        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
+        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        
+        //read the appropriate sector and write in sectorBuffer
+        if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to read sector block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return -1;
+        }
+        
+        //transfering data
+        if (i==0)
+        {
+            memcpy(sectorBuffer+sizeof(int),buffer+transferedSize,min(SECTOR_SIZE-sizeof(int),size));
+            transferedSize=transferedSize + min(SECTOR_SIZE-sizeof(int),size);
+        }
+        else
+        {
+            memcpy(sectorBuffer,buffer+transferedSize,min(SECTOR_SIZE,size-transferedSize));
+            transferedSize=transferedSize+min(SECTOR_SIZE,size-transferedSize);
+        }
+        
+        if(transferedSize==size)
+        {
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return transferedSize;
+        }
+        
+        if(transferedSize>size)
+        {
+            printf("Some error in transfering data. Note: some sectors have changed\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return -1;
+        }
+        
+        // write sectorBuffer in disk
+        if( Disk_Write(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
+        {
+            printf("Disk failed to write changed block\n");
+            free(inodeBuffer);
+            free(inodeSegmentPointerToSector);
+            free(sectorBuffer);
+            return -1;
+        }
+        
+    }
+    
+    free(inodeBuffer);
+    free(inodeSegmentPointerToSector);
+    free(sectorBuffer);
+    return transferedSize;
 }
