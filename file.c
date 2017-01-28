@@ -238,6 +238,15 @@ int openFileDescriptor(char *path)
     return 0;
 }
 
+int isFileOpen(int fd)
+{
+    if(fd < 0 || fd > OPEN_FILE_NUM_MAX)
+        return -1;
+    if(fileTable[fd].isValid == VALID)
+        return 0;
+    return -1;
+}
+
 int FileRead(int fd, char *buffer, int size){
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
     char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
@@ -423,7 +432,7 @@ int WriteFile(int fd, char* buffer , int size)
 void printFileTableEntry(int fd)
 {
     if(fileTable[fd].isValid == NOT_VALID)
-        return 0;
+        return;
     printf("|%-4d  |", fd);
     printf("%-8d  |", fileTable[fd].inodePointer);
     printf("%-8d  |", fileTable[fd].filePointer);
