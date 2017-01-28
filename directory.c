@@ -329,15 +329,16 @@ int findLeafInodeNumber(char *path, char** array, int index, int *parent, int *c
         *parent = *current;
         if(searchPathInInode(*parent, array[i], current) != 0)
         {
-           // printf("SearchPathInInode(%d, %s) --> %d\n", *parent, array[i], *current);
+            printf("SearchPathInInode(%d, %s) --> %d\n", *parent, array[i], *current);
             break;
         }
-       // printf("SearchPathInInode(%d, %s) --> %d\n", *parent, array[i], *current);
+        printf("SearchPathInInode(%d, %s) --> %d\n", *parent, array[i], *current);
     }
 
 
     if(index - i != step )
     {
+        printf("%d %d", index, i);
         printf("Cant find parents of directory you want\n");
         return -1;
     }

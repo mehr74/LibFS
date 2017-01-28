@@ -20,14 +20,15 @@ int main(int argc, char *argv[])
 
     printf("Starting filesystem\n");
     FS_Boot(path);
-    Dir_Create("/alireza");
-    Dir_Create("/alireza/gholi");
-    Dir_Create("/alireza/reza");
-    Dir_Unlink("/alireza/gholi");
-//    File_Create("/alireza/reza/test.txt");
-//    File_Create("/alireza/test.txt");
-    char *buffer = NULL;
-    Dir_Read("/alireza", buffer,  Dir_Size("/alireza"));
+    int i = 0;
+    char buffer[256];
+    for(i = 0; i < 256; i++)
+    {
+        sprintf(buffer, "tst%d.txt", i);
+        File_Create(buffer);
+        File_Open(buffer);
+    }
+
     FS_Sync();
     return 0;
 }

@@ -5,6 +5,7 @@ typedef struct FileTableEntry
 {
     int fileDescriptor;
     int inodePointer;
+    int openCount;
     int filePointer;
     int sizeOfFile;
     int isValid;
@@ -22,6 +23,12 @@ int getAvailabeFileDescriptor();
 int SizeOfFile(int inodeNumber);
 int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers);
 
+int openFileDescriptor(char *path);
+
+
 int FileRead(int fd, char *buffer, int size);
 int WriteFile(int fd, char* buffer , int size);
+
+void printFileTableEntry(int fd);
+void printFileTable();
 #endif // FILE_H

@@ -115,7 +115,10 @@ int File_Create(char *file)
 
 int File_Open(char *file)
 {
-    printf("FS_Open\n");
+    printf("FS_Open : %s\n", file);
+    if(openFileDescriptor(file) != 0)
+        return -1;
+    printFileTable();
     return 0;
 }
 

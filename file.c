@@ -4,14 +4,13 @@
 #include "builder.h"
 #include "LibDisk.h"
 #include "directory.h"
+#include "LibFS.h"
 #include <string.h>
 #include <stdio.h>
 #include "LibDisk.h"
 
 // the fileTable in memory (static makes it private to the file)
 static FileTableEntry* fileTable;
-
-static int numberOfOpenFiles = 0;
 
 int addFile(int parentInode, char* fileName)
 {
@@ -81,26 +80,10 @@ int CreateFileTable()
 int getAvailabeFileDescriptor()
 {
     int i;
-    if(numberOfOpenFiles > OPEN_FILE_NUM_MAX)
-        return -1;
     for(i = 0; i < OPEN_FILE_NUM_MAX; i++)
     {
         if(fileTable[i].isValid == NOT_VALID)
             return i;
-    }
-    return -1;
-}
-
-int getFileTableEntry(int fileDescriptor, FileTableEntry *fileTableEntry)
-{
-    int i = 0;
-    for(i = 0; i < numberOfOpenFiles; i++)
-    {
-        if(fileTable[i].fileDescriptor == fileDescriptor)
-        {
-            fileTableEntry = &fileTable[i];
-            return 0;
-        }
     }
     return -1;
 }
@@ -213,6 +196,46 @@ int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers)
     free(inodeSegmentPointerToSector);
     return entryOccupiedNumber;
     
+}
+
+int openFileDescriptor(char *path)
+{
+    int fd = getAvailabeFileDescriptor();
+    if(fd < 0)
+    {
+        osErrno = E_TOO_MANY_OPEN_FILES;
+        return -1;
+    }
+
+    // allocate memory for storing string...
+    char* array[128];
+    char myPath[256];
+
+    // make a copy of path to modify
+    strcpy(myPath, path);
+
+    // tokenize path and make array of path elements...
+    int i = BreakPathName(myPath, array);
+
+    int parent;
+    int current;
+
+    if(findLeafInodeNumber(myPath, array, i, &parent, &current, 0) != 0)
+    {
+        osErrno = E_NO_SUCH_FILE;
+        return -1;
+    }
+
+    fileTable[fd].fileDescriptor = fd;
+    fileTable[fd].inodePointer = current;
+    fileTable[fd].filePointer = 0;
+    fileTable[fd].openCount =1;
+    fileTable[fd].sizeOfFile = SizeOfFile(current);
+    fileTable[fd].isValid = VALID;
+    strcpy(fileTable[fd].fileName, array[i-1]);
+    strcpy(fileTable[fd].filePath, path);
+
+    return 0;
 }
 
 int FileRead(int fd, char *buffer, int size){
@@ -395,4 +418,33 @@ int WriteFile(int fd, char* buffer , int size)
     free(inodeSegmentPointerToSector);
     free(sectorBuffer);
     return transferedSize;
+}
+
+void printFileTableEntry(int fd)
+{
+    if(fileTable[fd].isValid == NOT_VALID)
+        return 0;
+    printf("|%-4d  |", fd);
+    printf("%-8d  |", fileTable[fd].inodePointer);
+    printf("%-8d  |", fileTable[fd].filePointer);
+    printf("%-8d|", fileTable[fd].sizeOfFile);
+    if(fileTable[fd].isValid == VALID)
+        printf("V |");
+    else
+        printf("I |");
+    printf("%-16s|", fileTable[fd].fileName);
+    printf("%-24s|\n", fileTable[fd].filePath);
+}
+
+void printFileTable()
+{
+    int i;
+    puts("\n+-----------------+----------+--------+--+----------------+------------------------+");
+    puts("|fd    |inode     |fp        |fz      |V |filename        |filepath                |");
+    puts("+------+----------+----------+--------+--+----------------+------------------------+");
+    for(i = 0; i < OPEN_FILE_NUM_MAX; i++)
+    {
+        printFileTableEntry(i);
+    }
+    puts("+------+----------+----------+--------+--+----------------+------------------------+\n");
 }
