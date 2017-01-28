@@ -135,7 +135,7 @@ int File_Read(int fd, void *buffer, int size)
         return -1;
     }
     
-    int sizeRead = FileRead(int fd, char *buffer, int size)
+    int sizeRead = FileRead( fd, buffer, size);
     if(sizeRead==-1)
     {
         printf("Error happen in Reading\n");
@@ -157,7 +157,7 @@ int File_Seek(int fd, int offset)
     printf("FS_Seek\n");
     if(offset > SizeOfFile(getInodePointerOfFileEntry(fd)))
     {
-        E_SEEK_OUT_OF_BOUNDS = -1;
+        osErrno= E_SEEK_OUT_OF_BOUNDS;
         return -1;
     }
     if(isFileOpen(fd))

@@ -92,14 +92,15 @@ int getInodePointerOfFileEntry(int fd)
 {
     if(fd < 0 || fd > OPEN_FILE_NUM_MAX)
         return -1;
-    return fileTable[fd];
+    return fileTable[fd].inodePointer;
 }
 
 int updateFilePointerOfFileEntry(int fd, int filePointer)
 {
     if(fd < 0 || fd > OPEN_FILE_NUM_MAX)
         return -1;
-    filePointer[fd] = filePointer;
+    fileTable[fd].filePointer = filePointer;
+    return 0;
 }
 
 int SizeOfFile(int inodeNumber)
@@ -243,7 +244,6 @@ int openFileDescriptor(char *path)
     fileTable[fd].fileDescriptor = fd;
     fileTable[fd].inodePointer = current;
     fileTable[fd].filePointer = 0;
-    fileTable[fd].openCount =1;
     fileTable[fd].sizeOfFile = SizeOfFile(current);
     fileTable[fd].isValid = VALID;
     strcpy(fileTable[fd].fileName, array[i-1]);
@@ -263,7 +263,7 @@ int isFileOpen(int fd)
 
 int removeFileTableEntry(int fd)
 {
-    if(fd , 0 || fd > OPEN_FILE_NUM_MAX)
+    if(fd < 0 || fd > OPEN_FILE_NUM_MAX)
         return -1;
     fileTable[fd].isValid = NOT_VALID;
     return 0;
