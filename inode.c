@@ -310,21 +310,13 @@ int isDirectoryInode (char *inode)
 int UpdateInodeDataSectorNumber(int inodeNumber,int index, int value)
 {
     char* inodeBuffer=calloc(sizeof(char),INODE_SIZE);
-    char* inodeSegmentPointerToSector =calloc(sizeof(char),sizeof(int));
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
-    char directoryEntryNumberInString[sizeof(int)];
-    
-    DirectoryEntry directoryEntryTemp;
-    int inodePointerToSectorNumber;
-    int counter=0;
-    int i,j;
     
     // Read the inode
     if( ReadInode(inodeNumber, inodeBuffer) == -1)
     {
         printf("Disk failed to read inode block\n");
         free(inodeBuffer);
-        free(inodeSegmentPointerToSector);
         free(sectorBuffer);
         return -1;
     }
@@ -333,12 +325,36 @@ int UpdateInodeDataSectorNumber(int inodeNumber,int index, int value)
     if (index<0 || index>=SECTOR_PER_FILE_MAX)
     {
         printf("Index is not legal\n");
+        free(inodeBuffer);
+        free(sectorBuffer);
         return -1;
     }
     
     // change the appropriate sector number
     inodeBuffer[META_DATA_PER_INODE_BYTE_NUM+(index*((INODE_SIZE-META_DATA_PER_INODE_BYTE_NUM)/SECTOR_PER_FILE_MAX))]=value; //8 + (index * 4)
     
+    
+    //read the appropriate sector and update inode sector number
+    if( Disk_Read(INODE_FIRST_BLOCK_INDEX + (inodeNumber/INODE_PER_BLOCK_NUM), sectorBuffer) == -1)
+    {
+        printf("Disk failed to read sector block\n");
+        free(inodeBuffer);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    memcpy(sectorBuffer+INODE_SIZE*(inodeNumber%INODE_PER_BLOCK_NUM),inodeBuffer,INODE_SIZE);
+    
+    if( Disk_Write(INODE_FIRST_BLOCK_INDEX + (inodeNumber/INODE_PER_BLOCK_NUM), sectorBuffer) == -1)
+    {
+        printf("Disk failed to write changed block\n");
+        free(inodeBuffer);
+        free(sectorBuffer);
+        return -1;
+    }
+    
+    free(inodeBuffer);
+    free(sectorBuffer);
     return 0;
 }
 

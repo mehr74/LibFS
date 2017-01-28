@@ -372,6 +372,7 @@ int FileWrite(int fd, char* buffer , int size)
     int transferedSize=0;
     int newSizeOfFile;
     
+    int occupiedEntryBeforeWrite=(fileTable[fd].sizeOfFile+sizeof(int)-1)/SECTOR_SIZE+1;
     int inodePointerToSectorNumber;
     int i;
     
@@ -399,9 +400,43 @@ int FileWrite(int fd, char* buffer , int size)
     //find appropriate sectors and reading from them and save into buffer
     for (i=0;i<SECTOR_PER_FILE_MAX;i++)
     {
-        //find sector number
-        memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
-        inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        //check for unvalid sector number
+        if (i>=occupiedEntryBeforeWrite)
+        {
+            inodePointerToSectorNumber=FindNextAvailableDataBlock();
+            if(inodePointerToSectorNumber==-1)
+            {
+                printf("There is not enough space\n");
+                osErrno=E_NO_SPACE;
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                return -1;
+            }
+            
+            if(ChangeDataBitmapStatus(inodePointerToSectorNumber, OCCUPIED)==-1)
+            {
+                printf("Some error has occured while changing data block bitmap\n");
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                return -1;
+            }
+            if(UpdateInodeDataSectorNumber(fileTable[fd].inodePointer,i,inodePointerToSectorNumber )==-1)
+            {
+                printf("Some error has occured while changing inode sector numbers\n");
+                free(inodeBuffer);
+                free(inodeSegmentPointerToSector);
+                free(sectorBuffer);
+                return -1;
+            }
+        }
+        else
+        {
+            //find sector number
+            memcpy((void*)inodeSegmentPointerToSector,(void*)inodeBuffer+META_DATA_PER_INODE_BYTE_NUM+i*sizeof(int),sizeof(int));
+            inodePointerToSectorNumber=StringToInt(inodeSegmentPointerToSector);
+        }
         
         //read the appropriate sector and write in sectorBuffer
         if( Disk_Read(DATA_FIRST_BLOCK_INDEX + inodePointerToSectorNumber, sectorBuffer) == -1)
@@ -416,7 +451,7 @@ int FileWrite(int fd, char* buffer , int size)
         // write the new size in appropriate part
         if ( i== 0)
         {
-            sectorBuffer=newSizeOfFile;
+            sectorBuffer[0]=newSizeOfFile;
         }
         
         //transfering data
