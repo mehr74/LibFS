@@ -124,14 +124,30 @@ int File_Open(char *file)
 
 int File_Read(int fd, void *buffer, int size)
 {
-
     printf("FS_Read\n");
-    return 0;
+    
+    // Check file is open or not
+    if ( isFileOpen(buffer)==-1)
+    {
+        osErrno=E_BAD_FD;
+        printf("File is not open\n");
+        return -1;
+    }
+    
+    int sizeRead = FileRead(int fd, char *buffer, int size)
+    if(sizeRead==-1)
+    {
+        printf("Error happen in Reading\n");
+        return -1;
+    }
+    return sizeRead;
 }
 
 int File_Write(int fd, void *buffer, int size)
 {
     printf("FS_Write\n");
+    
+    //
     return 0;
 }
 

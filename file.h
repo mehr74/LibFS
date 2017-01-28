@@ -24,7 +24,7 @@ int SizeOfFile(int inodeNumber);
 int DataBlocksOccupiedByFile(int inodeNumber,int* sectorNumbers);
 
 int openFileDescriptor(char *path);
-int isFileOpne(int fd);
+int isFileOpen(int fd);
 
 
 int FileRead(int fd, char *buffer, int size);

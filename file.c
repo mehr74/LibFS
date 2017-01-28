@@ -253,7 +253,15 @@ int FileRead(int fd, char *buffer, int size){
     char* sectorBuffer=calloc(sizeof(char),SECTOR_SIZE);
     
     // determine how many bytes we must read
-    int readSize=min(fileTable[fd].sizeOfFile-fileTable[fd].filePointer,size);
+    int readSize;
+    if(fileTable[fd].sizeOfFile-fileTable[fd].filePointer<0)
+    {
+       readSize=0;
+    }
+    else
+    {
+       readSize=min(fileTable[fd].sizeOfFile-fileTable[fd].filePointer,size);
+    }
     int transferedSize=0;
     
     int inodePointerToSectorNumber;
