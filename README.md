@@ -14,9 +14,13 @@ in the file system. We can store the disk image file anywhere.
 * Upon success, return 0
 * Upon failure, return -1 and set *osErrno* to *E_GENERAL*
 
+---
+
 **int FS_Sync()**
 
 *FS_Sync()* ensures the contents of the file system are stored persistently on disk.
+
+---
 
 ## File Access API
 
