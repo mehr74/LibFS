@@ -7,6 +7,7 @@ typedef struct FileTableEntry
     int inodePointer;
     int filePointer;
     int sizeOfFile;
+    int isValid;
     char fileName[16];
     char filePath[256];
 } FileTableEntry;

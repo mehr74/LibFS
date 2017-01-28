@@ -58,5 +58,8 @@ extern char BIT_5;       //is 0x20
 extern char BIT_6;       //is 0x40
 extern char BIT_7;       //is 0x80
 
+extern int VALID;
+extern int NOT_VALID;
+
 
 #endif // PARAMETERS_H

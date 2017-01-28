@@ -246,7 +246,7 @@ int Dir_Unlink(char *path)
 
 
     int DataBlocksOccupied[30];
-    int j = DataBlocksOccupiedByInode(current, DataBlocksOccupied);
+    int j = DataBlocksOccupiedByDirectory(current, DataBlocksOccupied);
 
     for (i = 0; i < j; i++)
     {
