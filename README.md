@@ -18,4 +18,9 @@ in the file system. We can store the disk image file anywhere.
 
 *FS_Sync()* ensures the contents of the file system are stored persistently on disk.
 
+## File Access API
+
+**int File_Create(char *file)**
+
+*File_Create()* creates a new file.
 
