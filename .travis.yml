@@ -1,0 +1,3 @@
+language: c
+compiler: gcc
+script: make -f Make.libfs && make -f Make.main
