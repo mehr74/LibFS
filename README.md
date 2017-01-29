@@ -161,9 +161,7 @@ it! Return -1 and set *osErrno* to *E_ROOT_DIR*.
 
 ## Example 
 
-`
-`
-`
+```
 +====================+
 |                    |
 |   inode #2         |
@@ -186,6 +184,4 @@ it! Return -1 and set *osErrno* to *E_ROOT_DIR*.
 |              |     |
 +==============+=====+
 
-`
-`
-`
+```
