@@ -70,23 +70,28 @@ int  BreakPathName(char *pathName, char **arrayOfBreakPathName)
 int addDirectoryEntryOnSector(char* dataBlock, DirectoryEntry *dirEntry)
 {
     int i;
-    for(i = 0; i < (SECTOR_SIZE/DIRECTORY_LENGTH) ; i++)
+    for(i = 0; i < (SECTOR_SIZE/DIRECTORY_LENGTH); i++)
     {
         if(dataBlock[i*DIRECTORY_LENGTH + 4] == '\0')
+        {
+            if( i+1 == SECTOR_SIZE / DIRECTORY_LENGTH )
+            {
+                printBlockHex(dataBlock, 512);
+                printf("TSTSTSTSTSTST");
+                strcpy(&dataBlock[i*DIRECTORY_LENGTH + 4], dirEntry->pathName);
+                dataBlock[i*DIRECTORY_LENGTH] = dirEntry->inodePointer;
+                printBlockHex(dataBlock, 512);
+                return -1;
+            }
+
             break;
+        }
     }
 
-    if(i * DIRECTORY_ID + 19 > SECTOR_SIZE)
-        return -1;
+    if(i == SECTOR_SIZE / DIRECTORY_LENGTH)
+        return -2;
     strcpy(&dataBlock[i*DIRECTORY_LENGTH + 4], dirEntry->pathName);
     dataBlock[i*DIRECTORY_LENGTH] = dirEntry->inodePointer;
-
-
-    if((i+1)*DIRECTORY_LENGTH + 19 > SECTOR_SIZE)
-    {
-        return -2;
-    }
-
     dataBlock[(i+1)*DIRECTORY_LENGTH + 4] = '\0';
 
     return 0;
@@ -134,10 +139,12 @@ int addDirectoryEntry(int inodeNum, DirectoryEntry *dirEntry)
             free(inodeBlock);
             break;
         }
-        else if(res == -2)  // There is no space to add terminator
+        else if(res == -1)  // There is no space to add terminator
         {
+            Disk_Write(dataBlockIndex + DATA_FIRST_BLOCK_INDEX, dataBlock);
             // allocate a new free data block to inode
             int k = FindNextAvailableDataBlock();
+            UpdateInodeDataSectorNumber(inodeNum, i+1, k);
             ChangeDataBitmapStatus(k, OCCUPIED);
 
             // check if there is space in directory to store more files
@@ -341,7 +348,6 @@ int findLeafInodeNumber(char *path, char** array, int index, int *parent, int *c
 
     if(index - i != step )
     {
-        printf("%d %d", index, i);
         printf("Cant find parents of directory you want\n");
         return -1;
     }

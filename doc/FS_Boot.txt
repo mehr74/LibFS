@@ -1,0 +1,58 @@
+int FS_Boot(char* path)
+
+FS_Boot() should be called exactly once before any other LibFS functions are called.
+It receives a single argument, a path, which either points to a real file where your
+"disk image" is stored or to a file that does not yet exist and which must be created to
+hold a new disk image. The path is which determined by Operating System. It's not the path
+in the file system. We can store the disk image file anywhere.
+
+Upon success, return 0
+Upon failure, return -1 and set osErrno to E_GENERAL
+
+
+--> Save the path in diskPath ( It is used later in FS_Sync function )
+--> Check if there is a file in path
+----> if there's no file in path create a new file system
+----> if there's a file in path try to load the file system
+
+Creating new file system
+--> 1- Create a disk using Disk_Boot() function.
+--> 2- Create a super block and store the super block in disk.
+--> 3- Create bitmap blocks for both inode and datablocks.
+--> 4- Create root directory.
+
+Loading file system
+--> 1- Load superblock and check the magic number
+--> 2- Check if there is a root directory in inode 0
+
+** Add super block
+1c1
+< 00000000: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+---
+> 00000000: 0d0d 0d0d 0000 0000 0000 0000 0000 0000  ................
+
+
+** Update inode bitmap and allocate an inode block for root
+33c33
+< 00000200: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+---
+> 00000200: 0100 0000 0000 0000 0000 0000 0000 0000  ................
+
+
+** Update data bitmap and allocate a data block for root
+65c65
+< 00000400: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+---
+> 00000400: 0100 0000 0000 0000 0000 0000 0000 0000  ................
+
+** Add . (dot) and .. (dot dot) entry to root directory
+8161,8162c8161,8162
+< 0001fe00: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+< 0001fe10: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+---
+> 0001fe00: 0000 0000 2e00 0000 0000 0000 0000 0000  ................
+> 0001fe10: 0000 0000 0000 0000 2e2e 0000 0000 0000  ................
+
+
+
+  

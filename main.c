@@ -20,7 +20,9 @@ int main(int argc, char *argv[])
     }
 
     FS_Boot(argv[1]);
-    testB();
+    File_Create("/test.txt");
+    File_Open("/test.txt");
+  //  testB();
     FS_Sync();
     return 0;
 }
@@ -44,7 +46,7 @@ int testB()
     printf("Testing File");
     char buffer[256];
     int i;
-    for(i = 0; i < 25; i++)
+    for(i = 0; i < 256; i++)
     {
         sprintf(buffer, "/file%d.txt", i);
         File_Create(buffer);

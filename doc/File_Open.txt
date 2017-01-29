@@ -1,0 +1,16 @@
+int File_Open(char *file)
+
+File_Open() opens up a file and returns an integer file descriptor ( a
+number greater than or equal to 0), which can be used to read or write data
+to that file.
+ If the file doesn't exist, return -1 and osErrno is set to 
+E_NO_SUCH_FILE.
+ if there are already a maximum number of files open, return -1 and set 
+osErrno to E_TOO_MANY_OPEN_FILES.
+
+--> File the file inode number using the searchPath method explained in File_Create.txt
+--> if the file doesn't exists return -1
+--> if the file is in the openFileTable return -1
+--> try to add file to fileTable
+--> if the size of fileTable in use is equal to its maximum number return 
+--> add an entry to filetable and return its number as file descriptor 

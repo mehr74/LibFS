@@ -1,0 +1,6 @@
+int FS_Sync()
+
+FS_Sync() ensures the contents of the file system are stored persistently on disk.
+
+This function just store the disk data in path specified by FS_Boot function.
+
