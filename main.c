@@ -1,5 +1,5 @@
 #include <stdio.h>
-
+#include <string.h>
 #include "LibFS.h"
 
 
@@ -26,6 +26,13 @@ int main(int argc, char *argv[])
 
 int testA()
 {
+    printf("Testing File");
+    File_Create("/main.c");
+    File_Create("/lib.c");
+    int fd = File_Open("/main.c");
+    char buffer[24];
+    strcpy(buffer, "This is a test string");
+    File_Write(fd, buffer, 22);
     return 0;
 }
 
