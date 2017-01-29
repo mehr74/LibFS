@@ -158,3 +158,34 @@ directory. If there are still files within the directory, return -1 and set
 *osErrno* to *E_DIR_NO_EMPTY*.
 * If someone tries to remove the root directory("/"), don't allow them to do 
 it! Return -1 and set *osErrno* to *E_ROOT_DIR*.
+
+## Example 
+
+`
+`
+`
++====================+
+|                    |
+|   inode #2         |
+|                    |
++==============+=====+
+|   . (dot)    |  2  |
++--------------+-----+
+| .. (dot dot) |  2  |
++--------------+-----+
+|    home      | 123 |
++--------------+-----+
+|    bin       | 555 |
++--------------+-----+
+|    usr       | 654 |
++--------------+-----+
+|              |     |
++--------------+-----+
+|              |     |
++--------------+-----+
+|              |     |
++==============+=====+
+
+`
+`
+`
