@@ -162,26 +162,70 @@ it! Return -1 and set *osErrno* to *E_ROOT_DIR*.
 ## Example 
 
 ```
-+====================+
-|                    |
-|   inode #2         |
-|                    |
-+==============+=====+
-|   . (dot)    |  2  |
-+--------------+-----+
-| .. (dot dot) |  2  |
-+--------------+-----+
-|    home      | 123 |
-+--------------+-----+
-|    bin       | 555 |
-+--------------+-----+
-|    usr       | 654 |
-+--------------+-----+
-|              |     |
-+--------------+-----+
-|              |     |
-+--------------+-----+
-|              |     |
-+==============+=====+
+    +----+-----+---------------------------------------------+
+#2  |. 2 |.. 2 | home 123 | usr 654 | bin 555 |etc 23 | ...  |
+    +----+-----+---------------------------------------------+
+                  |  The inode #2 above is the ROOT directory. It has the
+                  |  name "home" in it. The *directory* "home" is not
+                  |  here; only the *name* is here. The ROOT directory
+                  |  itself does not have a name!
+                  V
+      +------+-----+----------------------------------------------------------------+
+#123  |. 123 |.. 2 | ian 111 | file1.txt 755 | file2.txt 883 | file3.txt 221 | ...  |
+      +------+-----+----------------------------------------------------------------+
+                       |  The inode #123 above is the "home" directory. The name
+                       |  "home" isn't here; it's up in the ROOT directory,
+                       |  above. This directory has the name "ian" in it.
+                       V
+     +----+-------+---------------------------------------------------+
+#111 |. 31|.. 123 | foobar 12 | temp 15 | literature 7 | demo 6 | ... |
+     +----+-------+---------------------------------------------------+
+                  |  The inode # above is       |
+                  |  the "ian" directory. The   |
+                  |  name "ian" isn't here;     |
+                  |  it's up in the "home"      |
+                  |  directory, above.  This    |
+                  |  directory has the names    |
+                  |  "foobar" and "literature"  |
+                  |  in it.                     |
+                  |                             V
+    +----+-----+--|-------------------------------------------+
+#7  |. 7 |.. 31|  |  barfoo 12 | morestuf 123 | junk 99 | ... |
+    +----+-----+--|-------------------------------------------+
+                  |       |  The inode #7 above is the "literature" directory.
+                  |       |  The name "literature" isn't here; it's up
+                  |       |  in the "ian" directory.  This directory has
+                  |       |  the name "barfoo" in it.
+                  |       |
+                  V       V
+                 *-----------*  This inode #12 on the left is a file inode.
+                 | file data |  It contains the data blocks for the file.
+             #12 | file data |  This file happens to have two names, "foobar"
+                 | file data |  and "barfoo", but those names are not here.
+                 *-----------*  The names of this file are up in the two
+                                directories that point to this file, above.
+
+
++====================+        +====================+        +====================+
+|                    |        |                    |        |                    |
+|   directory #2     |        |   directory #555   |        |   directory #123   |
+|                    |        |                    |        |                    |
++==============+=====+        +==============+=====+        +==============+=====+
+|   . (dot)    |  2  |        |   . (dot)    | 555 |        |   . (dot)    | 123 |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+| .. (dot dot) |  2  |        | .. (dot dot) |  2  |        | .. (dot dot) |  2  |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+|    home      | 123 |        |      rm      | 546 |        |     ian      | 111 |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+|    bin       | 555 |        |      ls      | 984 |        |  file1.txt   | 755 |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+|    usr       | 654 |        |      cp      | 333 |        |  file2.txt   | 883 |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+|              |     |        |      ln      | 333 |        |  file3.txt   | 221 |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+|              |     |        |      mv      | 333 |        |              |     |
++--------------+-----+        +--------------+-----+        +--------------+-----+
+|              |     |        |              | 333 |        |              |     |
++==============+=====+        +==============+=====+        +==============+=====+
 
 ```
