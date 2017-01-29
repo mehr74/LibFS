@@ -743,3 +743,4 @@ int DataBlocksOccupiedByDirectory ( int inodeNumber , int* sectorNumbers)
     free(sectorBuffer);
     return counter;
 }
+

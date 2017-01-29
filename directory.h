@@ -29,5 +29,4 @@ int DeleteEntryFromDirectory(int inodeNumber , int inodeSearch );
 
 int DataBlocksOccupiedByDirectory ( int inodeNumber , int* sectorNumbers);
 
-
 #endif // DIRECTORY_H

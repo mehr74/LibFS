@@ -22,5 +22,6 @@ int ReadInode(int inodeNumber, char* inodeData);
 
 int isDirectoryInode (char *inode);
 
+int UpdateInodeDataSectorNumber(int inodeNumber,int index, int value);
 
 #endif // INODE_H

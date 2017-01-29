@@ -413,6 +413,12 @@ int FileWrite(int fd, char* buffer , int size)
             return -1;
         }
         
+        // write the new size in appropriate part
+        if ( i== 0)
+        {
+            sectorBuffer=newSizeOfFile;
+        }
+        
         //transfering data
         if (i==0 && fileTable[fd].filePointer<(SECTOR_SIZE-sizeof(int)))
         {
