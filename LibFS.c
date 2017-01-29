@@ -13,6 +13,7 @@
 int osErrno;
 // a temp variable for reading buffers
 char* read_buffer;
+char* diskPath;
 
 int FS_Boot(char *path)
 {
@@ -28,6 +29,8 @@ int FS_Boot(char *path)
 
     // do all of the other stuff needed...
     // check for path and read the existing file
+    diskPath = calloc(sizeof(char), strlen(diskPath));
+    strcpy(diskPath, path);
     if (Disk_Load(path)==-1)
     {
         if (diskErrno==E_OPENING_FILE)
@@ -71,7 +74,7 @@ int FS_Boot(char *path)
 int FS_Sync()
 {
     printf("FS_Sync\n");
-    Disk_Save("disk.txt");
+    Disk_Save(diskPath);
     return 0;
 }
 

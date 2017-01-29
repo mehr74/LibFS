@@ -1,7 +1,9 @@
 #include <stdio.h>
 
 #include "LibFS.h"
-#include "directory.h"
+
+
+int testA();
 
 void usage(char *prog)
 {
@@ -16,20 +18,16 @@ int main(int argc, char *argv[])
         usage(argv[0]);
     }
 
-    char *path = argv[1];
-
-    printf("Starting filesystem\n");
-    FS_Boot(path);
-    int i = 0;
-    char buffer[256];
-    for(i = 0; i < 2; i++)
-    {
-        sprintf(buffer, "tst%d.txt", i);
-        File_Create(buffer);
-        File_Open(buffer);
-    }
-
+    FS_Boot(argv[1]);
+    testA();
     FS_Sync();
     return 0;
 }
+
+int testA()
+{
+    return 0;
+}
+
+
 
