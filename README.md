@@ -3,7 +3,7 @@ In this project we created a user-level library, libFS, which handles an adequat
 
 ## 1. Generic File System API
 
-**int FS_Boot(char *path)**
+**int FS_Boot(char \*path)**
 
 *FS_Boot()* should be called exactly once before any other LibFS functions are called.
 It receives a single argument, a path, which either points to a real file where your
@@ -24,7 +24,7 @@ in the file system. We can store the disk image file anywhere.
 
 ## 2. File Access API
 
-**int File_Create(char *file)**
+**int File_Create(char \*file)**
 
 *File_Create()* creates a new file.
 
@@ -35,7 +35,7 @@ in the file system. We can store the disk image file anywhere.
 
 ---
 
-**int File_Open(char *file)**
+**int File_Open(char \*file)**
 
 *File_Open()* opens up a file and returns an integer file descriptor ( a
 number greater than or equal to 0), which can be used to read or write data
@@ -47,7 +47,7 @@ to that file.
 
 ---
 
-**int File_Read(int fd, void *buffer, int size)**
+**int File_Read(int fd, void \*buffer, int size)**
 
 *File_Read()* reads size bytes from the file referenced by the file descriptor
 *fd*. The data should be read into the buffer pointed to by buffer. All reads
@@ -63,7 +63,7 @@ be returned, even under repeated calls to *File_Read()*
 
 ---
 
-**int File_Write(int fd, void *buffer, int size)**
+**int File_Write(int fd, void \*buffer, int size)**
 
 *File_Write()* writes size bytes from buffer and write thme into the file
 referenced by *fd*. All writes should be updated after the write to its
@@ -87,7 +87,7 @@ current location plus size.
 
 ---
 
-**int File_Unlink(char *file)**
+**int File_Unlink(char \*file)**
 
 This should delete the file referenced by file, including removing its name
 from the directory it is in, and freeing up any data blocks and inodes that 
@@ -111,7 +111,7 @@ set *osErrno* to *E_SEEK_OUT_OF_BOUNDS*.
 
 ## 3. Folder Access API
 
-**int Dir_Create(char *path)**
+**int Dir_Create(char \*path)**
 
 *Dir_Create()* creates a new directory as named by path. To do so, we first 
 allocate a new file (of type directory), and then add a new directory entry
@@ -125,7 +125,7 @@ create "/a/b").
 
 ---
 
-**int Dir_Size(char *path)**
+**int Dir_Size(char \*path)**
 
 *Dir_Size()* returns the number of bytes in the directory referred to by path.
 This routine should be used to find the size of the directory before calling
@@ -133,7 +133,7 @@ This routine should be used to find the size of the directory before calling
 
 ---
 
-**int Dir_Read(char *path, void *buffer, int size)**
+**int Dir_Read(char \*path, void \*buffer, int size)**
 
 *Dir_Read()* can be used to read the contents of a directory. It should return
 in the buffer a set of directory entries. Each entry is of size 20 bytes, and 
@@ -147,7 +147,7 @@ if there are two entries in the directory).
 
 ---
 
-**int Dir_Unlink(char *path)**
+**int Dir_Unlink(char \*path)**
 
 *Dir_Unlink()* removes a directory referred to by path, freeing up its inode
 and data blocks, and removing its entry from the parent directory. 
